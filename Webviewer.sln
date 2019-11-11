@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.852
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Webviewer", "Webviewer\", "{FA6787A3-BDBE-4BA4-AAC1-1586597D5297}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.6.1"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_52047"
+		Debug.AspNetCompiler.PhysicalPath = "Webviewer\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52047\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_52047"
+		Release.AspNetCompiler.PhysicalPath = "Webviewer\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52047\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "52047"
+		SlnRelativePath = "Webviewer\"
+		DefaultWebSiteLanguage = "Visual C#"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA6787A3-BDBE-4BA4-AAC1-1586597D5297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA6787A3-BDBE-4BA4-AAC1-1586597D5297}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BF10A9EA-B015-4829-8D56-1E1651A5B08F}
+	EndGlobalSection
+EndGlobal
