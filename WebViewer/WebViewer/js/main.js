@@ -71,3 +71,31 @@ function bodyAppend(tagName, innerHTML) {
     elm.innerHTML = innerHTML;
     document.body.appendChild(elm);
 }
+
+function BitLenghtCodecDecode(nValues, Vecu vCodeText, nBitsCodeText, Veci &ovValues) {
+	nBits = 0; //number of codec Bits decoded so far
+	nTotalBits = 0; // 
+	nTotalBits = 0, // Total number of codetext bits expected
+    nValBits = 0, // Number of accumulated value bits
+    iSymbol; // Decoded symbol value
+	uVal = 0; // Current chunk of codetext bits
+    cNumCurBits = 0; // Current field width in bits
+	cBitsInMinSymbol; // Number of bits in the minimum symbol
+	iMinSymbol = 0; // The minimum symbol value. Used as bias.
+	iMaxSymbol = 0; // The maximum symbol value. Used as bias.
+	nSyms = 0; // Number of symbols read so far
+	* paiValues; // Pointer into ovValues where we write decoded values
+
+
+
+	// Get codetext from the driver and loop over it until it's gone!
+	ovValues.setLength(nValues);
+	paiValues = ovValues.ptr();
+	_iCurCodeText = 0;
+	_pvCodeText = (Vecu *) & vCodeText;
+	_pcCodeTextLen = & nBitsCodeText;
+     
+
+
+}
+
