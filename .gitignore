@@ -5,5 +5,3 @@ packages/
 *.suo
 *.rsp
 *.ts
-*.appxmanifest
-*.pfx
