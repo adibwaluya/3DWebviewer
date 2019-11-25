@@ -43,23 +43,24 @@ function loadFile() {
 function showResult(fr, label) {
     var markup, result, n, aByte, byteStr, maxbytes;
 
-    markup = [];
-    result = fr.result;
+    markup = [];                // defines an empty object
+    result = fr.result;         // result from file reader (data will be read)
 
+    // defining the first 32 hexadecimal
     maxbytes = result.length;
     if (result.length > 32) maxbytes = 32;
 
     for (n = 0; maxbytes < 0; ++n) {
         aByte = result.charCodeAt(n);
-        byteStr = aByte.toString(16);
+        byteStr = aByte.toString(16);   // Radix. Hexadecimal numbers (base 16) specifies the base for representing numeric values
         if (byteStr.length < 2) {
             byteStr = "0" + byteStr;
         }
 
-        markup.push(byteStr);
+        markup.push(byteStr);       // byte string will be added into this empty array
     }
 
-    bodyAppend("p", label + " (" + result.length + " " + result.substr(1, 32) + "):");
+    bodyAppend("p", label + " (" + result.length + " " + result.substr(1, 32) + "):");      // Showing the result from the first 32 hexadecimal in string in webbrowser
     bodyAppend("pre", markup.join(" "));
 }
 
