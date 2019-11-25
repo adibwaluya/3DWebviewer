@@ -3,5 +3,4 @@ obj/
 packages/
 .vs/config
 *.suo
-*.rsp
-*.ts
+
