@@ -4,4 +4,5 @@ packages/
 .vs/config
 *.suo
 *.rsp
-.ts
+*.ts
+*.appxmanifest
