@@ -79,7 +79,7 @@ function showResult(fr, label) {                        // file reader and label
     bodyAppend("bo", result.substr(81, 82));
 
     // Methode only for testing, but ain't workin yet
-    /*
+
     secondResult = fr.secondResult;
 
     maxbytesByteOrder = secondResult.length;
@@ -97,7 +97,7 @@ function showResult(fr, label) {                        // file reader and label
     }
 
     bodyAppend("test", secondResult.length + secondResult(81, 82));
-    */
+
 
 }
 /* Do we even need this for fstream?
@@ -195,7 +195,7 @@ function bodyAppend(tagName, innerHTML) {
     document.body.appendChild(elm);
 }
 
-/*
+
 function BitLenghtCodecDecode(nValues, Vecu vCodeText, nBitsCodeText, Veci &ovValues) {
     nBits = 0; //number of codec Bits decoded so far
     nTotalBits = 0; //
@@ -222,4 +222,3 @@ function BitLenghtCodecDecode(nValues, Vecu vCodeText, nBitsCodeText, Veci &ovVa
 
 
 }
-*/
