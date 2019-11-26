@@ -66,7 +66,7 @@ function showResult(fr, label) {                        // file reader and label
     for (n = 0; n < maxbytesVersion; ++n) {
         aByte = result.charCodeAt(n);
         byteStr = aByte.toString(16);   // radix. Hexadecimal numbers (base 16) specifies the base for representing numeric values
-        if (byteStr.length < 2) {
+        if (byteStr.length < 2) {       // with this methode, character from bytestr should be precisely determined
             byteStr = "0" + byteStr;
         }
 
@@ -76,7 +76,7 @@ function showResult(fr, label) {                        // file reader and label
     //bodyAppend("p", label + " (" + result.length + "  " + result.substr(0, 130) + "):");
     bodyAppend("p", result.substr(0, 130));
     bodyAppend("pre", markup.join(" "));
-    bodyAppend("bo", result.substr(81, 82));
+    //bodyAppend("bo", result.substr(81, 82));
 
     // Methode only for testing, but ain't workin yet
 
@@ -87,13 +87,14 @@ function showResult(fr, label) {                        // file reader and label
 
     for (n = 80; n < maxbytesByteOrder; ++n) {
         aByte = secondResult.charCodeAt(n);
-        byteStr = aByte.toString(16);
+        byteStr = aByte.parseInt();
+        /*
         if (byteStr.length < 2) {
             byteStr = "0" + byteStr;
         }
 
         markup.push(byteStr);
-
+        */
     }
 
     bodyAppend("test", secondResult.length + secondResult(81, 82));
