@@ -61,7 +61,7 @@ function showResult(fr, label) {                        // file reader and label
 
     // defining the first 32 hexadecimal
     maxbytesVersion = result.length;
-    if (result.length > 32) maxbytesVersion = 32;
+    if (result.length > 130) maxbytesVersion = 130;
 
     for (n = 0; n < maxbytesVersion; ++n) {
         aByte = result.charCodeAt(n);
@@ -73,10 +73,13 @@ function showResult(fr, label) {                        // file reader and label
         markup.push(byteStr);
     }
 
-    bodyAppend("p", label + " (" + result.length + "  " + result.substr(0, 32) + "):");
+    //bodyAppend("p", label + " (" + result.length + "  " + result.substr(0, 130) + "):");
+    bodyAppend("p", result.substr(0, 130));
     bodyAppend("pre", markup.join(" "));
     bodyAppend("bo", result.substr(81, 82));
 
+    // Methode only for testing, but ain't workin yet
+    /*
     secondResult = fr.secondResult;
 
     maxbytesByteOrder = secondResult.length;
@@ -94,7 +97,7 @@ function showResult(fr, label) {                        // file reader and label
     }
 
     bodyAppend("test", secondResult.length + secondResult(81, 82));
-
+    */
 
 }
 /* Do we even need this for fstream?
