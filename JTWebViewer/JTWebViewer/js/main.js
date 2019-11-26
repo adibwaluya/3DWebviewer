@@ -22,7 +22,7 @@ function loadFile() {
 
     else {
         file = input.files[0];
-        fr = new FileReader;
+        fr = new FileReader();
         fr.onload = receivedText;
         fr.readAsText(file);
     }
@@ -61,7 +61,7 @@ function showResult(fr, label) {                        // file reader and label
 
     // defining the first 32 hexadecimal
     maxbytesVersion = result.length;
-    if (result.length > 130) maxbytesVersion = 130;
+    if (result.length > 32) maxbytesVersion = 32;
 
     for (n = 0; n < maxbytesVersion; ++n) {
         aByte = result.charCodeAt(n);
@@ -74,7 +74,7 @@ function showResult(fr, label) {                        // file reader and label
     }
 
     //bodyAppend("p", label + " (" + result.length + "  " + result.substr(0, 130) + "):");
-    bodyAppend("p", result.substr(0, 130));
+    bodyAppend("p", result.substr(0, 32));
     bodyAppend("pre", markup.join(" "));
     //bodyAppend("bo", result.substr(81, 82));
 
@@ -171,6 +171,16 @@ function myFileHeader(fr, label) {
      */
 
 
+const changeEndianness = (string) => {
+    const result = [];
+    let len = string.length - 2;
+    while (len >= 0) {
+        result.push(string.substr(len, 2));
+    }
+
+    return result.join('');
+}
+
 function createGUID() {
     var dt = new Date().getTime();
     var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -197,6 +207,7 @@ function bodyAppend(tagName, innerHTML) {
 }
 
 
+/*
 function BitLenghtCodecDecode(nValues, Vecu vCodeText, nBitsCodeText, Veci &ovValues) {
     nBits = 0; //number of codec Bits decoded so far
     nTotalBits = 0; //
@@ -223,3 +234,4 @@ function BitLenghtCodecDecode(nValues, Vecu vCodeText, nBitsCodeText, Veci &ovVa
 
 
 }
+*/
