@@ -1,174 +1,372 @@
 ﻿// Fügen Sie Ihren Code hier ein.
 function loadFile() {
+
     var input, file, fr;
 
     if (typeof window.FileReader !== 'function') {
+
         bodyAppend("p", "The file API isn't supported on this browser yet.");
         return;
     }
 
     input = document.getElementById('fileinput');
+
     if (!input) {
+
         bodyAppend("p", "Um, couldn't find the fileinput element.");
     }
 
     else if (!input.files) {
-        bodyAppend("p", "This browser doesn't seem to support the 'files' property of file inputs");
+
+        bodyAppend("p", "This browser doesn't seem to support the `files` property of file inputs.");
     }
 
     else if (!input.files[0]) {
-        bodyAppend("p", "Please select file before clicking 'Load'");
+
+        bodyAppend("p", "Please select a file before clicking 'Load'");
     }
 
     else {
+
         file = input.files[0];
         fr = new FileReader();
-        fr.onload = receivedText;
-        fr.readAsText(file);
-    }
-
-    function receivedText() {
-        showResult(fr, "Text");
-
-        fr = new FileReader();
-        fr.onload = receivedBinary;
+        fr.addEventListener("load", receivedText);
+        fr.addEventListener("load", receivedTOC);
+        //fr.onload = receivedText; 
         fr.readAsBinaryString(file);
     }
 
-    function receivedBinary() {
-        showResult(fr, "Binary");
+    function receivedText() {
+
+        showResultVersion(fr, "Text");
+        showResultFileHeader(fr, "File Header");
+        fr = new FileReader();
+        //fr.onload = receivedBinary;
+        //fr.onload = showFileHeader;
+        fr.readAsBinaryString(file);
     }
 
-
-}
-
-function showResult(fr, label) {                        // file reader and label as parameter
-    var markup,
-        result,
-        n,
-        aByte,
-        byteStr,
-        maxbytesVersion;
-    //secondResult,
-    //secondMarkup,
-    //maxbytesFinalFive,
-    //maxbytesByteOrder;
-    //uuid,
-    //identifier;
-
-    markup = [];    // defines an empty object
-    result = fr.result; // result from the file reader
-
-    // defining the first 32 hexadecimal
-    maxbytesVersion = result.length;
-    if (result.length > 32) maxbytesVersion = 32;
-
-    for (n = 0; n < maxbytesVersion; ++n) {
-        aByte = result.charCodeAt(n);
-        byteStr = aByte.toString(16);   // radix. Hexadecimal numbers (base 16) specifies the base for representing numeric values
-        if (byteStr.length < 2) {       // with this methode, character from bytestr should be precisely determined
-            byteStr = "0" + byteStr;
-        }
-
-        markup.push(byteStr);
+    function receivedTOC() {
+        //showResultTOC(fr, "TOC");
+        fr = new FileReader();
+        fr.onload = showTOC;
+        fr.readAsBinaryString(file);
     }
-
-    //bodyAppend("p", label + " (" + result.length + "  " + result.substr(0, 130) + "):");
-    bodyAppend("p", result.substr(0, 32));
-    bodyAppend("pre", markup.join(" "));
-    //bodyAppend("bo", result.substr(81, 82));
-
-    // Methode only for testing, but ain't workin yet
-
-    secondResult = fr.secondResult;
-
-    maxbytesByteOrder = secondResult.length;
-    if (secondResult.length > 81) maxbytesByteOrder = 81;
-
-    for (n = 80; n < maxbytesByteOrder; ++n) {
-        aByte = secondResult.charCodeAt(n);
-        byteStr = aByte.parseInt();
-        /*
-        if (byteStr.length < 2) {
-            byteStr = "0" + byteStr;
-        }
-
-        markup.push(byteStr);
-        */
-    }
-
-    bodyAppend("test", secondResult.length + secondResult(81, 82));
-
-
-}
-/* Do we even need this for fstream?
-http = require('http');
-fs = require('fs');
-
-http.createServer(function (req, res) {
-    var filename = __dirname + req.url;
-
-    var readStream = fs.createdReadStream(filename);
-
-    readStream.on('error', function (err) {
-        res.end(err);
-    });
-}).listen(8080);
-*/
-
-/*
- *if (result.length > 145) maxbytesByteOrder = 145;
-
-for (n = 145; maxbytesByteOrder < 145; ++n) {
-    aByte = result.charCodeAt(n);
-    byteStr = aByte.toString(16);
-    if (byteStr.length < 2) {
-        byteStr = "0" + byteStr;
-    }
-
-    markup.push(byteStr);
-}
- * 
- * */
-
-
-
-
-//bodyAppend("bo", "(" + secondResult.substr(80, 82));
-
-
-
-/* 
-function myFileHeader(fr, label) {
-    var jtVersion,
-        jtByteOrder = 0,
-        jtFileAttributes = 0,
-        jtTOCOffset = 0,
-        generateGUID = createGUID(),
-        fs,
-        myReadStream,
-        readMe,
-        markup,
-        result;
-
-    var http = require('http');
-    var fs = require('fs');
-
-    http.createServer(function (req, res) {
-        var filename = 
-    });
-    result = fr.result;
-    jtVersion = result.length;
-
-   
 
 
     /*
-     myFileHeader(myReadStream.on('data', function (chunk) {
+    function receivedBinary() {
+        showResult(fr, "Binary");
+    }
+    */
+
+    function showFileHeader() {
+        showResultFileHeader(fr, "File Header");
+
+    }
+
+    function showTOC() {
+        showResultTOC(fr, "Table of Content");
+    }
+}
+
+function showResultVersion(fr, label) {
+
+    var markup, result, n, aByte, byteStr, maxbytes, secondResult, byteOrder, strInt, secondMarkup;
+
+    markup = [];
+    result = fr.result;
+    maxbytes = result.length;
+
+    if (result.length > 32) maxbytes = 32;
+    for (n = 0; n < maxbytes; ++n) { //result.length; ++n) {
+
+        aByte = result.charCodeAt(n);
+        byteStr = aByte.toString(16);           // radix. Hexadecimal numbers (base 16) specifies the base for representing numeric values
+        if (byteStr.length < 2) {               // with this methode, character from bytestr should be precisely determined
+
+            byteStr = "0" + byteStr;
+        }
+
+        markup.push(byteStr);
+    }
 
 
-    }));
-     */
+    //bodyAppend("p", label + " (" + result.length + "  " + result.substr(0, 32) + "):");
+    bodyAppend("p", label + " (" + "  " + result.substr(0, 32) + "):");     // display the label (Version, Byte Order, etc.)
+    bodyAppend("pre", markup.join(" "));    // display the hexadecimal number which represents a certain piece of data structure 
+
+
+}
+
+function showResultFileHeader(fr, mark) {
+
+    showByteOrder(fr, "Byte Order");
+    showEmptyField(fr, "Empty Field");
+    showTOCOffset(fr, "TOC Offset");
+    showLSGSegID(fr, "LSG Segment ID")
+
+    function showByteOrder(fr, label) {
+
+        var markup, result, n, aByte, byteStr, maxbytesByteOrder;
+
+        markup = [];
+        result = fr.result;
+        maxbytesByteOrder = result.length;
+
+        if (result.length > 81) maxbytesByteOrder = 81;         // posisi datanya dimana persis (contoh: byteorder di 81)
+        for (n = 80; n < maxbytesByteOrder; ++n) { //result.length; ++n) {      // n = maxbytes - 1
+
+            aByte = result.charCodeAt(n);
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+
+        //bodyAppend("p", label + ": " + result.substr(80, 81));
+        bodyAppend("p", label + ": ");
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+    function showEmptyField(fr, label) {
+
+        var markup, result, n, aByte, byteStr, maxbytesEmptyField;
+
+        markup = [];
+        result = fr.result;
+        maxbytesEmptyField = result.length;
+
+        if (result.length > 85) maxbytesEmptyField = 85;
+        for (n = 81; n < maxbytesEmptyField; ++n) { //result.length; ++n) {
+
+            aByte = result.charCodeAt(n);           // charCodeAt: returns the Unicode value of the character at the specified index in a string (e.g. v = 86)
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+
+        //bodyAppend("p", label + ": " + result.substr(82, 86));
+        bodyAppend("p", label + ": ");
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+    function showTOCOffset(fr, label) {
+
+        var markup, result, n, aByte, byteStr, maxbytesTOCOffset;
+
+        markup = [];
+        result = fr.result;
+        maxbytesTOCOffset = result.length;
+
+        if (result.length > 89) maxbytesTOCOffset = 89;
+        for (n = 85; n < maxbytesTOCOffset; ++n) { //result.length; ++n) {
+
+            aByte = result.charCodeAt(n);           // charCodeAt: returns the Unicode value of the character at the specified index in a string (e.g. v = 86)
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+
+        //bodyAppend("p", label + ": " + result.substr(86, 90));
+        bodyAppend("p", label + ": ");
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+    function showLSGSegID(fr, label) {
+
+        var markup, result, n, aByte, byteStr, maxbytesLSG;
+
+        markup = [];
+        result = fr.result;
+        maxbytesLSG = result.length;
+
+        if (result.length > 105) maxbytesLSG = 105;
+        for (n = 89; n < maxbytesLSG; ++n) { //result.length; ++n) {
+
+            aByte = result.charCodeAt(n);
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+
+        //bodyAppend("p", label + ": " + result.substr(90, 106));
+        bodyAppend("p", label + ": ");
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+
+}
+
+function showResultTOC(fr, mark) {
+
+    showEntryCount(fr, "Entry Count");
+    showSegID(fr, "Seg ID");
+    showSegmentOffset(fr, "Segment Offset");
+    showSegmentLength(fr, "Segment Length");
+    showSegmentAttributes(fr, "Segment Attribute");
+
+    function showEntryCount(fr, label) {
+
+        var markup, result, n, aByte, byteStr, maxbytesEntryCount;
+
+        markup = [];
+        result = fr.result;
+        maxbytesEntryCount = result.length;
+
+        if (result.length > 109) maxbytesEntryCount = 109;         // posisi datanya dimana persis (contoh: byteorder di 81)
+        for (n = 105; n < maxbytesEntryCount; ++n) { //result.length; ++n) {      // n = maxbytes - 1
+
+            aByte = result.charCodeAt(n);
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+
+        //bodyAppend("p", label + ": " + result.substr(106, 110));
+        bodyAppend("p", label + ": ");
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+    function showSegID(fr, label) {
+
+        var markup, result, n, aByte, byteStr, maxbytesSegID;
+
+        markup = [];
+        result = fr.result;
+        maxbytesSegID = result.length;
+
+        if (result.length > 125) maxbytesSegID = 125;
+        for (n = 109; n < maxbytesSegID; ++n) { //result.length; ++n) {
+
+            aByte = result.charCodeAt(n);
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+
+        //bodyAppend("p", label + ": " + result.substr(110, 126));
+        bodyAppend("p", label + ": ");
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+    function showSegmentOffset(fr, label) {
+
+        var markup, result, n, aByte, byteStr, maxbytesSegmentOffset;
+
+        markup = [];
+        result = fr.result;
+        maxbytesSegmentOffset = result.length;
+
+        if (result.length > 129) maxbytesSegmentOffset = 129;
+        for (n = 125; n < maxbytesSegmentOffset; ++n) { //result.length; ++n) {
+
+            aByte = result.charCodeAt(n);
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+
+        //bodyAppend("p", label + ": " + result.substr(126, 130));
+        bodyAppend("p", label + ": ");
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+    function showSegmentLength(fr, label) {
+
+        var markup, result, n, aByte, byteStr, maxbytesSegmentLength;
+
+        markup = [];
+        result = fr.result;
+        maxbytesSegmentLength = result.length;
+
+        if (result.length > 133) maxbytesSegmentLength = 133;
+        for (n = 129; n < maxbytesSegmentLength; ++n) { //result.length; ++n) {
+
+            aByte = result.charCodeAt(n);
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+
+        //bodyAppend("p", label + ": " + result.substr(130, 134));
+        bodyAppend("p", label + ": ");
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+    function showSegmentAttributes(fr, label) {
+
+        var markup, result, n, aByte, byteStr, maxbytesSegmentAttributes;
+
+        markup = [];
+        result = fr.result;
+        maxbytesSegmentAttributes = result.length;
+
+        if (result.length > 137) maxbytesSegmentAttributes = 137;
+        for (n = 133; n < maxbytesSegmentAttributes; ++n) { //result.length; ++n) {
+
+            aByte = result.charCodeAt(n);
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+
+        //bodyAppend("p", label + ": " + result.substr(130, 134));
+        bodyAppend("p", label + ": ");
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+
+
+
+
+
+
+}
 
 
 const changeEndianness = (string) => {
@@ -181,31 +379,15 @@ const changeEndianness = (string) => {
     return result.join('');
 }
 
-function createGUID() {
-    var dt = new Date().getTime();
-    var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = (dt + Math.random() * 16) % 16 | 0;
-        dt = Math.floor(dt / 16);
-        return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-
-    });
-
-    return guid;
-}
-
-function uuidv4() {
-    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
-}
 
 function bodyAppend(tagName, innerHTML) {
+
     var elm;
 
     elm = document.createElement(tagName);
     elm.innerHTML = innerHTML;
     document.body.appendChild(elm);
 }
-
 
 /*
 function BitLenghtCodecDecode(nValues, Vecu vCodeText, nBitsCodeText, Veci &ovValues) {
