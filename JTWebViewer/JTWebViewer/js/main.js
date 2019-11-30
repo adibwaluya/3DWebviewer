@@ -32,7 +32,7 @@ function loadFile() {
         fr = new FileReader();
         fr.addEventListener("load", receivedText);
         fr.addEventListener("load", receivedTOC);
-        
+
         fr.readAsBinaryString(file);
     }
 
@@ -40,19 +40,18 @@ function loadFile() {
 
         showResultVersion(fr, "Text");
         showResultFileHeader(fr, "File Header");
-        
-        
+
+
         fr = new FileReader();
 
-        
+
         fr.readAsBinaryString(file);
     }
 
-    
 
 
-    function receivedTOC()
-    {
+
+    function receivedTOC() {
         showResultTOC(fr, "TOC");
         fr = new FileReader();
         fr.onload = showTOC;
@@ -65,41 +64,40 @@ function loadFile() {
 
 function showResultVersion(fr, label) {
 
-    var markup, a , h , bo , e, toc, segid,  result, n, aByte, byteStr, maxbytes, secondResult, byteOrder, strInt, secondMarkup,m, item;
+    var markup, a, h, bo, e, toc, segid, result, n, aByte, byteStr, maxbytes, secondResult, byteOrder, strInt, secondMarkup, m, item;
 
-    
+
     a = [];
-    
+
     a[0] = 80; a[1] = 81; a[2] = 85; a[3] = 89; a[4] = 105;
     result = fr.result;
-     
+
     a.forEach(myFunction);
     item = 0;
 
-    function myFunction(item,index)
-    {
+    function myFunction(item, index) {
         markup = [];
-        if (item == 80) { n = 0; } else { n= a[index - 1]; }
-        for (n ; n < item; n++) { //result.length; ++n) {
-
-                aByte = result.charCodeAt(n);
-                byteStr = aByte.toString(16);           // radix. Hexadecimal numbers (base 16) specifies the base for representing numeric values
-                if (byteStr.length < 2) {               // with this methode, character from bytestr should be precisely determined
-
-                    byteStr = "0" + byteStr;
-                }
-
-                markup.push(byteStr);
-            }
         if (item == 80) { n = 0; } else { n = a[index - 1]; }
-            bodyAppend("p", label + " (" + "  " + result.substr(n, item) + "):");     // display the label (Version, Byte Order, etc.)
-            bodyAppend("pre", markup.join(" "));
-        
-    }
-  
-       
+        for (n; n < item; n++) { //result.length; ++n) {
 
-    
+            aByte = result.charCodeAt(n);
+            byteStr = aByte.toString(16);           // radix. Hexadecimal numbers (base 16) specifies the base for representing numeric values
+            if (byteStr.length < 2) {               // with this methode, character from bytestr should be precisely determined
+
+                byteStr = "0" + byteStr;
+            }
+
+            markup.push(byteStr);
+        }
+        if (item == 80) { n = 0; } else { n = a[index - 1]; }
+        bodyAppend("p", label + " (" + "  " + result.substr(n, item) + "):");     // display the label (Version, Byte Order, etc.)
+        bodyAppend("pre", markup.join(" "));
+
+    }
+
+
+
+
 
 }
 
@@ -108,7 +106,7 @@ function showResultVersion(fr, label) {
 //    var result, aByte, byteStr, myNum;
 //    result = fr.result;
 //    b = [];
-    
+
 
 //    for (n = 105; n < 109; n++)
 //    {
@@ -125,11 +123,11 @@ function showResultVersion(fr, label) {
 //            }).join('');
 //        }
 
-        
+
 
 //    }
-    
-    
+
+
 
 
 //    return  myNum = parseInt(toHexString(b), 16);
@@ -193,7 +191,7 @@ function showResultTOC(fr, label) {
 
 
 }
-    
+
 
 
 function bodyAppend(tagName, innerHTML) {
