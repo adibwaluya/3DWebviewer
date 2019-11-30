@@ -10,4 +10,4 @@ a. Google Chrome (strg + shift + j) bei Sources, in der linken Seite die Datei m
 b. Mozilla Firefox (strg + shift + k) bei Debugger.
 
 Die Integration sieht bisher sehr simpel aus, weil die JT-Reader erst nur die Hexadezimalzahl von File Header und 
-Table of Contents lesen kann und diese zwei Datenstrukture brauchen die GUI nicht. 
+Table of Contents lesen kann und diese zwei Datenstrukture braucht die GUI nicht. 
