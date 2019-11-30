@@ -4,5 +4,6 @@ packages/
 .vs/
 bld/
 
+*.dtbcache
 *.suo
 
