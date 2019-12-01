@@ -1,68 +1,64 @@
-let camera, scene, renderer, cube;
 
-function init() {
-    // Init scene
-    scene = new THREE.Scene();
 
-    // Init camera (PerspectiveCamera)
-    camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
-
-    // Init renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-
-    // Set size (whole window)
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    // Render to canvas element
-    document.body.appendChild(renderer.domElement);
-
-    // Init BoxGeometry object (rectangular cuboid)
-    const geometry = new THREE.BoxGeometry(3, 3, 3);
-
-    // Create material with color
-    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-
-    // Add texture - 
-    // const texture = new THREE.TextureLoader().load('textures/crate.gif');
-
-    // Create material with texture
-    // const material = new THREE.MeshBasicMaterial({ map: texture });
-
-    // Create mesh with geo and material
-    cube = new THREE.Mesh(geometry, material);
-    // Add to scene
-    scene.add(cube);
-
-    // Position camera
-    camera.position.z = 5;
-}
-
-// Draw the scene every time the screen is refreshed
-function animate() {
-    requestAnimationFrame(animate);
-
-    // Rotate cube (Change values to change speed)
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-
-    renderer.render(scene, camera);
-}
-
-function onWindowResize() {
-    // Camera frustum aspect ratio
-    camera.aspect = window.innerWidth / window.innerHeight;
-    // After making changes to aspect
-    camera.updateProjectionMatrix();
-    // Reset size
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-window.addEventListener('resize', onWindowResize, false);
+var scene, camera, renderer, exporter, mesh;
 
 init();
 animate();
+function init() {
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.set(200, 100, 200);
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xa0a0a0);
+    scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
+
+    //
+    var hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
+    hemiLight.position.set(0, 200, 0);
+    scene.add(hemiLight);
+    var directionalLight = new THREE.DirectionalLight(0xffffff);
+    directionalLight.position.set(0, 200, 100);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.camera.top = 180;
+    directionalLight.shadow.camera.bottom = - 100;
+    directionalLight.shadow.camera.left = - 120;
+    directionalLight.shadow.camera.right = 120;
+    scene.add(directionalLight);
+    // ground
+    var ground = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000), new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false }));
+    ground.rotation.x = - Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+    var grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000);
+    grid.material.opacity = 0.2;
+    grid.material.transparent = true;
+    scene.add(grid);
+    // export mesh
+    var geometry = new THREE.BoxBufferGeometry(50, 50, 50);
+    var material = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true;
+    mesh.position.y = 25;
+    scene.add(mesh);
+    //
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    document.body.appendChild(renderer.domElement);
+    //
+   // var controls = new OrbitControls(camera, renderer.domElement);
+   // controls.target.set(0, 25, 0);
+   // controls.update();
+    //
+    window.addEventListener('resize', onWindowResize, false);
+
+}
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
