@@ -4,6 +4,9 @@ packages/
 .vs/
 bld/
 
+*.UpgradeLog
+*.winrt2ts.rsp	
+*.winrtrefs.d.ts 
 *.dtbcache
 *.suo
 
