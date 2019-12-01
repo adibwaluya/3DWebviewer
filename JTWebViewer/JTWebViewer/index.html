@@ -64,6 +64,15 @@
             scene.add(grid);
             // export mesh
             var geometry = new THREE.BoxBufferGeometry(50, 50, 50);  // getting the Geometry of a Box from ThreeJS
+
+             //var vertices = [];
+            //vertices.push(-10, 10, 0);
+            //vertices.push(-10, -10, 0);
+            //vertices.push(10, -10, 0);  // getting the Geometry of a Box from ThreeJS             // These are the first Experiment for Tristrip-display
+            //geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            //mesh.drawMode = THREE.TrianglesDrawMode;
+
+
             var material = new THREE.MeshPhongMaterial({ color: 0xFF0000 }); // getting the Material for the Object and Color
             mesh = new THREE.Mesh(geometry, material); // Creating the Object
             mesh.castShadow = true;
