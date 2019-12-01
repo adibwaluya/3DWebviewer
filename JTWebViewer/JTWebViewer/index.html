@@ -12,7 +12,7 @@
     </style>
 </head>
 <body>
-   
+
     <form action="#" onsubmit="return false;">
         <input type="file" id="fileinput" />
         <input type="button" id="btnLoad" value="Load" onclick="loadFile();" />
@@ -37,7 +37,7 @@
         function init() {
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);      // Settings for the Camera
             camera.position.set(200, 100, 200);     // Camera Position
-            scene = new THREE.Scene();              
+            scene = new THREE.Scene();
             scene.background = new THREE.Color(0xa0a0a0);       // Background Color
             scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);     // Creating the Fog for the Scene
 
@@ -56,23 +56,14 @@
             // ground
             var ground = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000), new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false })); // Adding the Objects to the Ground
             ground.rotation.x = - Math.PI / 2;
-            ground.receiveShadow = true;  
-            scene.add(ground);              // Adding the Scene 
+            ground.receiveShadow = true;
+            scene.add(ground);              // Adding the Scene
             var grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000);
             grid.material.opacity = 0.2;
             grid.material.transparent = true;
             scene.add(grid);
             // export mesh
             var geometry = new THREE.BoxBufferGeometry(50, 50, 50);  // getting the Geometry of a Box from ThreeJS
-
-             //var vertices = [];
-            //vertices.push(-10, 10, 0);
-            //vertices.push(-10, -10, 0);
-            //vertices.push(10, -10, 0);  // getting the Geometry of a Box from ThreeJS             // These are the first Experiment for Tristrip-display
-            //geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-            //mesh.drawMode = THREE.TrianglesDrawMode;
-
-
             var material = new THREE.MeshPhongMaterial({ color: 0xFF0000 }); // getting the Material for the Object and Color
             mesh = new THREE.Mesh(geometry, material); // Creating the Object
             mesh.castShadow = true;
@@ -87,7 +78,7 @@
             //
             var controls = new OrbitControls(camera, renderer.domElement); // Settings for Controlling the Object
             controls.target.set(0, 25, 0);
-             controls.update();
+            controls.update();
             //
             window.addEventListener('resize', onWindowResize, false); // To Relocate the Object
 
@@ -97,12 +88,12 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
-        function animate() {                    
+        function animate() {
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
-         }
+        }
 
     </script>
 </body>
-</html >
+</html>
 

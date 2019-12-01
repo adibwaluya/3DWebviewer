@@ -6,11 +6,11 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="da31ef62-4250-4b1a-8d5f-358c37a3dd5b"
+    Name="28acd708-b2de-4685-b0a8-ceb1dcdb6dc2"
     Version="1.0.0.0"
     Publisher="CN=agwpc" />
 
-  <mp:PhoneIdentity PhoneProductId="da31ef62-4250-4b1a-8d5f-358c37a3dd5b" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <mp:PhoneIdentity PhoneProductId="28acd708-b2de-4685-b0a8-ceb1dcdb6dc2" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
 
   <Properties>
     <DisplayName>JTWebViewer</DisplayName>

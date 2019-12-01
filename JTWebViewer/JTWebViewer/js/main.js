@@ -70,7 +70,7 @@ function showResultVersion(fr, label) {
     function myFunction(item, index) {
         markup = [];
         if (item == 80) { n = 0; } else { n = a[index - 1]; }       // Byte Order position is at byte 80 and will be set as the first index
-        for (n; n < item; n++) { 
+        for (n; n < item; n++) {
 
             aByte = result.charCodeAt(n);
             byteStr = aByte.toString(16);           // Radix. Hexadecimal numbers (base 16) specifies the base for representing numeric values
@@ -142,7 +142,7 @@ function showResultTOC(fr, label) {
     //markup = [];
     //EntryTOC = returnTOCEntrys(fr);
     result = fr.result;
-    EntryTOC = 7;      
+    EntryTOC = 7;
     a = [];
     a.length = EntryTOC * 4;        // multiple by 4 because Table of Contents consist of 4 elements with an exact position of byte
     for (n = 0; n < a.length; n++) {
@@ -159,7 +159,7 @@ function showResultTOC(fr, label) {
      * JT Data could have few or many Entry Counts (depends on the geometry and the number is never precise)
      * To avoid repetitive function, forEach would be implemented
     */
-    a.forEach(myFunction);      
+    a.forEach(myFunction);
     item = 0;
     function myFunction(item, index) {
         markup = [];
@@ -167,8 +167,8 @@ function showResultTOC(fr, label) {
         for (n; n < item; n++) { //result.length; ++n) {
 
             aByte = result.charCodeAt(n);
-            byteStr = aByte.toString(16);           
-            if (byteStr.length < 2) {               
+            byteStr = aByte.toString(16);
+            if (byteStr.length < 2) {
 
                 byteStr = "0" + byteStr;
             }
@@ -189,7 +189,7 @@ function showResultTOC(fr, label) {
         else if (item == 137 + 28 * ((a.indexOf(item) - 3) / 4)) {
             bodyAppend("p", "Segment Attributes");
         }
-        
+
         bodyAppend("pre", markup.join(" "));
 
     }
