@@ -64,6 +64,17 @@
              scene.add(grid);
              // export mesh
              var geometry = new THREE.BoxBufferGeometry(50, 50, 50);  // getting the Geometry of a Box from ThreeJS
+             var vertices = [
+            0.5,  10, 0,
+            10, -10, 0,
+            -10,  10, 0,
+            -10, -10, 0
+            ];
+            var geometry = new THREE.BufferGeometry();
+            geometry.addAttribute( 
+  	        'position', 
+            new THREE.BufferAttribute( new Float32Array( vertices ),3 )) ;
+
              var material = new THREE.MeshPhongMaterial({ color: 0xFF0000 }); // getting the Material for the Object and Color
              mesh = new THREE.Mesh(geometry, material); // Creating the Object
              mesh.castShadow = true;
