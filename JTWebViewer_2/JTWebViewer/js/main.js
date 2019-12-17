@@ -1,7 +1,7 @@
 ﻿// Load JT-Datei to web browser
 var streamReader;
 //var TOC;
-var i, x, segmentGUID = [], guidSegIDS = [], segmentOffsets = [], segmentlenghts = [], segmentAttribute = [];
+var i, x, iSeg, segmentGUID = [], guidSegIDS = [], segmentOffsets = [], segmentlenghts = [], segmentAttribute = [], segIDs = [], lodPositions = [];
 class JTDataReader {
     constructor(filename) {
         this.jtFile = new FileReader();
@@ -124,7 +124,7 @@ class jtTOC {
             for (i = 0; i < 16; ++i) {
                 segmentGUID.push(this.jtDataReader.getData8().toString(16));
             }
-            this.guidSegID = guidSegIDS.push(segmentGUID.join(""));
+            this.guidSegID = guidSegIDS.push(segmentGUID.join(""));     // guidSegIDs speichert die Arrays von Array segmentGUID (ARRAY VON ARRAY)
             this.segmentOffset = segmentOffsets.push( this.jtDataReader.getData32(0));
             this.segmentlenght = segmentlenghts.push( this.jtDataReader.getData32(0));
             this.segmentAttribute = segmentAttribute.push( this.jtDataReader.getData32(0));
@@ -141,6 +141,35 @@ class jtTOC {
             bodyAppend("p", "segmentLenght: " + segmentlenghts[x]);
             bodyAppend("p", "segmentAttribute: " + segmentAttribute[x]);
         }
+    }
+}
+
+class jtSegments {
+    constructor(jtDataReader) {
+        this.jtDataReader = jtDataReader;
+        this.segID = "";
+        this.segmentlength = 0;
+        
+    }
+
+    getPosition() {
+        var i;
+        for (i = 0; i < segmentAttribute.length; ++i) {
+            if (segmentAttribute[i] == 100663296) {
+                streamReader.position = segmentOffsets[i];
+            }
+        }
+    }
+
+    read() {
+        for (i = 0; i < 16; ++i) {
+            segIDs.push(this.jtDataReader.getData8().toString(16));
+        }
+        this.segID = segIDs.join("");
+    }
+
+    print() {
+        bodyAppend("p", "SegID: " + segIDs);
     }
 }
 
@@ -182,7 +211,7 @@ function int2float(expo, mant) {
 }
 
 function showFile() {
-    var filetitle, i, byteOrder, innerloop, fileHeader, bits, filetoc;
+    var filetitle, i, byteOrder, innerloop, fileHeader, bits, filetoc, kartoffel;
     var jj = 32;
     var kk = 0.5;
     bodyAppend("p", int2float(126, 0));
@@ -200,6 +229,13 @@ function showFile() {
     filetoc = new jtTOC(streamReader);
     filetoc.read();
     filetoc.print();
+
+    segments = new jtSegments();
+    segments.getPosition();
+    kartoffel = new jtSegments(streamReader);
+    kartoffel.getPosition();
+    kartoffel.read();
+    kartoffel.print()
     //streamReader.position = 1944;
     //streamReader.position =
 }
