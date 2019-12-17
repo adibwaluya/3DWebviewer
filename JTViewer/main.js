@@ -20,7 +20,7 @@ class JTDataReader {
         return this.data8Array[this.position++];
     }
 
-    universalGetData(amo, endi) {
+    universalGetData(amo, endi) {       // Big Endian = 1, Little Endian = 0
         var i, val = 0;
         if (endi == 0) {
             for (i = 0; i < amo; ++i) {
