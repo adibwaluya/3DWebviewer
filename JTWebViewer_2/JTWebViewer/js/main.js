@@ -169,7 +169,7 @@ class jtSegments {
     }
 
     print() {
-        bodyAppend("p", "SegID: " + segIDs);
+        bodyAppend("p", "SegID: " + segIDs.join(""));
     }
 }
 
