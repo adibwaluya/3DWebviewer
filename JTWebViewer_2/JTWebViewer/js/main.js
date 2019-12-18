@@ -1,7 +1,8 @@
 ﻿// Load JT-Datei to web browser
 var streamReader;
 //var TOC;
-var i, x, iSeg, segmentGUID = [], guidSegIDS = [], segmentOffsets = [], segmentlenghts = [], segmentAttribute = [], segIDs = [], lodPositions = [];
+var i, x, iSeg,  segmentGUID = [], guidSegIDS = [], segmentOffsets = [], segmentlenghts = [], segmentAttribute = [], segIDs = [], lodPositions = [];
+
 class JTDataReader {
     constructor(filename) {
         this.jtFile = new FileReader();
@@ -49,10 +50,27 @@ class JTDataReader {
 class JTBitReader {
     constructor(jtDataReader) {
         this.jtDataReader = jtDataReader;
-        this.data = jtDataReader.getData32(1);
+        this.data = jtDataReader.getData32(1); //normaly 1
         this.old = this.data;
         this.bitsLeft = 32;
     }
+    //getBits(numBits) {
+    //    var buildBits = 0;
+
+    //    if (this.bitsLeft < numBits) {
+    //        if (this.bitsLeft != 0) {
+    //            numBits = numBits - this.bitsLeft;
+    //            buildBits = this.data << (numBits);
+    //        }
+    //        this.data = this.jtDataReader.getData32(1);
+    //        this.bitsLeft = 32;
+    //    }
+    //    this.bitsLeft = this.bitsLeft - numBits;
+    //    buildBits = buildBits | (this.data >>> (this.bitsLeft));
+    //    this.data = this.data & (0xFFFFFFFF >>> (32 - this.bitsLeft));
+
+    //    return buildBits;
+    //}
 
     getBits(numBits) {
         var buildBits = 0;
@@ -161,14 +179,7 @@ class jtSegments {
         
     }
 
-    //getPosition() {
-    //    var i;
-    //    for (i = 0; i < segmentAttribute.length; ++i) {
-    //        if (segmentAttribute[i] == 100663296) {
-    //            streamReader.position = segmentOffsets[i];
-    //        }
-    //    }
-    //}
+   
 
     getLength() {
         var i;
@@ -185,12 +196,6 @@ class jtSegments {
             segIDs.push(this.jtDataReader.getData8().toString(16));
         }
         this.segID = segIDs.join("");
-        //for (i = 0; i < segmentAttribute.length; ++i) {
-        //    if (segmentAttribute[i] == 100663296) {
-        //        this.segmentlength = segmentlenghts[i];
-        //    }
-
-        //}
         this.segmentlength;
     }
 
@@ -199,6 +204,25 @@ class jtSegments {
         bodyAppend("p", "SegLength: " + this.segmentlength);
         
     }
+} class bitLenghtDecoder {
+    constructor(jtDataReader) {
+        this.jtDataReader = jtDataReader;
+        //this.bits = JTBitReader;
+        this.nbits = 0;
+        this.ntotalbits = 0;
+        this.facedegree = 0;
+    }
+    read() {
+        
+        this.facedegree = this.jtDataReader.getData32(0).toString(16);
+        
+
+    }
+
+    print() {
+        bodyAppend("p", "minBits: " + this.facedegree);
+    }
+
 }
 
 
@@ -240,14 +264,14 @@ function int2float(expo, mant) {
 
 function showFile() {
     var filetitle, i, byteOrder, innerloop, fileHeader, bits, filetoc, kartoffel;
-    var jj = 32;
+    var jj =0 ;
     var kk = 0.5;
     bodyAppend("p", int2float(126, 0));
     fileHeader = new jtHeader(streamReader);
     fileHeader.read();
     fileHeader.print();
-    //streamReader.position = 1944; // just for testing 
-    //bits = new JTBitReader(streamReader);
+     // just for testing 
+    
     //bodyAppend("p", "bits: " + bits.old.toString(2) + "  (" + bits.old.toString(16) + ")  caution: leading 0 are not printed...");
     //bodyAppend("p", "16 bits: " + bits.getBits(16).toString(2));
     //bodyAppend("p", "6 bits: " + bits.getBits(6).toString(2));
@@ -258,11 +282,22 @@ function showFile() {
     filetoc.read();
     filetoc.print();
 
-    getPosition();
-    kartoffel = new jtSegments(streamReader);
-    kartoffel.getLength();
-    kartoffel.read();
-    kartoffel.print()
+    //getPosition();
+    //streamReader.position = 1678;
+    //potato = new bitLenghtDecoder(streamReader);
+    //potato.read();
+    
+    //potato.print();
+
+    bits = new JTBitReader(streamReader);
+    jj = bits.getBits(28).toString(2);
+    
+    
+    bodyAppend("p", "6 Bits: " + jj);
+    //kartoffel = new jtSegments(streamReader);
+    //kartoffel.getLength();
+    //kartoffel.read();
+    //kartoffel.print()
 
 
     //streamReader.position = 1944;
