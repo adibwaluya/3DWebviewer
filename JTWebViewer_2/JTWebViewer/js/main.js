@@ -144,6 +144,15 @@ class jtTOC {
     }
 }
 
+function getPosition() {
+    var i;
+    for (i = 0; i < segmentAttribute.length; ++i) {
+        if (segmentAttribute[i] == 100663296) {
+            streamReader.position = segmentOffsets[i];
+        }
+    }
+}
+
 class jtSegments {
     constructor(jtDataReader) {
         this.jtDataReader = jtDataReader;
@@ -152,12 +161,22 @@ class jtSegments {
         
     }
 
-    getPosition() {
+    //getPosition() {
+    //    var i;
+    //    for (i = 0; i < segmentAttribute.length; ++i) {
+    //        if (segmentAttribute[i] == 100663296) {
+    //            streamReader.position = segmentOffsets[i];
+    //        }
+    //    }
+    //}
+
+    getLength() {
         var i;
         for (i = 0; i < segmentAttribute.length; ++i) {
             if (segmentAttribute[i] == 100663296) {
-                streamReader.position = segmentOffsets[i];
+                this.segmentlength = segmentlenghts[i];
             }
+
         }
     }
 
@@ -166,10 +185,19 @@ class jtSegments {
             segIDs.push(this.jtDataReader.getData8().toString(16));
         }
         this.segID = segIDs.join("");
+        //for (i = 0; i < segmentAttribute.length; ++i) {
+        //    if (segmentAttribute[i] == 100663296) {
+        //        this.segmentlength = segmentlenghts[i];
+        //    }
+
+        //}
+        this.segmentlength;
     }
 
     print() {
         bodyAppend("p", "SegID: " + segIDs.join(""));
+        bodyAppend("p", "SegLength: " + this.segmentlength);
+        
     }
 }
 
@@ -230,12 +258,13 @@ function showFile() {
     filetoc.read();
     filetoc.print();
 
-    segments = new jtSegments();
-    segments.getPosition();
+    getPosition();
     kartoffel = new jtSegments(streamReader);
-    kartoffel.getPosition();
+    kartoffel.getLength();
     kartoffel.read();
     kartoffel.print()
+
+
     //streamReader.position = 1944;
     //streamReader.position =
 }
