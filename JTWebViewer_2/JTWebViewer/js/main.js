@@ -1,7 +1,7 @@
 ﻿// Load JT-Datei to web browser
 var streamReader;
 //var TOC;
-var i, x, iSeg,  segmentGUID = [], guidSegIDS = [], segmentOffsets = [], segmentlenghts = [], segmentAttribute = [], segIDs = [], lodPositions = [];
+var i, x, iSeg, segmentIDs = [],  segmentGUID = [], guidSegIDS = [], segmentOffsets = [], segmentlenghts = [], segmentAttribute = [], segIDs = [], lodPositions = [];
 
 class JTDataReader {
     constructor(filename) {
@@ -143,6 +143,7 @@ class jtTOC {
                 segmentGUID.push(this.jtDataReader.getData8().toString(16));
             }
             this.guidSegID = guidSegIDS.push(segmentGUID.join(""));     // guidSegIDs speichert die Arrays von Array segmentGUID (ARRAY VON ARRAY)
+            
             this.segmentOffset = segmentOffsets.push( this.jtDataReader.getData32(0));
             this.segmentlenght = segmentlenghts.push( this.jtDataReader.getData32(0));
             this.segmentAttribute = segmentAttribute.push( this.jtDataReader.getData32(0));
@@ -163,12 +164,15 @@ class jtTOC {
 }
 
 function getPosition() {
-    var i;
+    var i, curPosition;
     for (i = 0; i < segmentAttribute.length; ++i) {
         if (segmentAttribute[i] == 100663296) {
             streamReader.position = segmentOffsets[i];
+            return streamReader.position;
         }
     }
+    this.curPosition = streamReader.position;
+    return curPosition;
 }
 
 class jtSegments {
@@ -178,8 +182,6 @@ class jtSegments {
         this.segmentlength = 0;
         
     }
-
-   
 
     getLength() {
         var i;
@@ -195,16 +197,22 @@ class jtSegments {
         for (i = 0; i < 16; ++i) {
             segIDs.push(this.jtDataReader.getData8().toString(16));
         }
-        this.segID = segIDs.join("");
+        this.segID = segmentIDs.push(segIDs.join(""));
         this.segmentlength;
     }
 
     print() {
-        bodyAppend("p", "SegID: " + segIDs.join(""));
+        var x;
+        for (x = 0; x < guidSegIDS.length; ++x) {
+            bodyAppend("p", "SegID: " + segmentIDs[x]);
+        }
+        
         bodyAppend("p", "SegLength: " + this.segmentlength);
         
     }
-} class bitLenghtDecoder {
+}
+
+class bitLenghtDecoder {
     constructor(jtDataReader) {
         this.jtDataReader = jtDataReader;
         //this.bits = JTBitReader;
@@ -282,6 +290,11 @@ function showFile() {
     filetoc.read();
     filetoc.print();
 
+    fileSegment = new jtSegments(streamReader);
+    getPosition();
+    fileSegment.read();
+    fileSegment.print();
+
     //getPosition();
     //streamReader.position = 1678;
     //potato = new bitLenghtDecoder(streamReader);
@@ -289,11 +302,14 @@ function showFile() {
     
     //potato.print();
 
-    bits = new JTBitReader(streamReader);
-    jj = bits.getBits(28).toString(2);
-    
-    
+    /*Important shits
+     * bits = new JTBitReader(streamReader);
+       jj = bits.getBits(8).toString(16);
+
+
     bodyAppend("p", "6 Bits: " + jj);
+     * */
+    
     //kartoffel = new jtSegments(streamReader);
     //kartoffel.getLength();
     //kartoffel.read();
