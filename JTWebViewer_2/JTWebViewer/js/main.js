@@ -12,10 +12,10 @@ function readGUID(jtDataReader) {
     return rawDataGUID.join("");
 }
 
-// Updated JTDataReader
+// read 8/16/32 bit data from file or array
 class JTDataReader {
     constructor() {
-        this.jtFile = null;
+        this.jtFile = new FileReader();
         this.position = 0;
         this.isdone = true;
         this.bitsLeft = 0;
@@ -76,52 +76,9 @@ class JTDataReader {
     }
 };
 
-//class JTDataReader {
-//    constructor(filename) {
-//        this.jtFile = new FileReader();
-//        this.position = 0;
-//        this.jtFile.readAsArrayBuffer(filename);
-//        this.isdone = false;
-//        this.bitsLeft = 0;
-//        this.jtFile.addEventListener('loadend', this.initArray.bind(this));
-//    }
-//    initArray() {
-//        this.data8Array = new Uint8Array(this.jtFile.result);
-//        this.isdone = true;
-//    }
-
-//    getData8() {
-//        return this.data8Array[this.position++];
-//    }
-
-//    universalGetData(amo, endi) {
-//        var i, val = 0;
-//        if (endi == 0) {
-//            for (i = 0; i < amo; ++i) {
-//                val = val | (this.data8Array[this.position++] << (i * 8))
-//            }
-//        } else {
-//            for (i = (amo - 1); i >= 0; --i) {
-//                val = val | (this.data8Array[this.position++] << (i * 8))
-//            }
-//        }
-//        return val;
-//    }
-
-//    getData16(endi) {
-//        return this.universalGetData(2, endi);
-//    }
-
-//    getData32(endi) {
-//        return this.universalGetData(4, endi);
-//    }
-//};
-
-
-//bodyAppend("p", "rrrrbuildBits: " + buildBits.toString(2) + "; bitsLeft: " + this.bitsLeft+ ";  data: " +this.data.toString(2) + " (" + this.data.toString(16) + ")");
-
+// reads bits; uses JTDataReader; 
 class JTBitReader {
-    constructor(jtDataReader) {
+    constructor(jtDataReader, endian) {
         this.jtDataReader = jtDataReader;
         this.endian = endian;
         this.data = 0xFFFF;
@@ -129,27 +86,9 @@ class JTBitReader {
         this.old = this.data;
         this.bitsLeft = 32;
     }
-    //getBits(numBits) {
-    //    var buildBits = 0;
-
-    //    if (this.bitsLeft < numBits) {
-    //        if (this.bitsLeft != 0) {
-    //            numBits = numBits - this.bitsLeft;
-    //            buildBits = this.data << (numBits);
-    //        }
-    //        this.data = this.jtDataReader.getData32(1);
-    //        this.bitsLeft = 32;
-    //    }
-    //    this.bitsLeft = this.bitsLeft - numBits;
-    //    buildBits = buildBits | (this.data >>> (this.bitsLeft));
-    //    this.data = this.data & (0xFFFFFFFF >>> (32 - this.bitsLeft));
-
-    //    return buildBits;
-    //}
 
     getBits(numBits) {
-        var buildBits = 0;
-
+        var ii, buildBits = 0;
         if (this.bitsLeft < numBits) {
             if (this.bitsLeft != 0) {
                 numBits = numBits - this.bitsLeft;
@@ -161,10 +100,10 @@ class JTBitReader {
         this.bitsLeft = this.bitsLeft - numBits;
         buildBits = buildBits | (this.data >>> (this.bitsLeft));
         this.data = this.data & (0xFFFFFFFF >>> (32 - this.bitsLeft));
-
         return buildBits;
     }
 }
+
 // 
 class jtHeader {
     constructor(jtDataReader) {
@@ -214,6 +153,7 @@ class jtTOCEntry {
             segmentGUID.push(this.jtDataReader.getData8().toString(16));
         }
         this.guidSegID = segmentGUID.join("");     // guidSegIDs speichert die Arrays von Array segmentGUID (ARRAY VON ARRAY)
+        this.guidSegID = readGUID();
         this.segmentOffset = this.jtDataReader.getData32(0);
         this.segmentlength = this.jtDataReader.getData32(0);
         this.segmentAttribute = this.jtDataReader.getData32(0);
