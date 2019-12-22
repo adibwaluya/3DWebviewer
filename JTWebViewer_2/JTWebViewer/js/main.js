@@ -3,8 +3,25 @@ var streamReader;
 //var TOC;
 var i, x, iSeg, segmentIDs = [],  segmentGUID = [], guidSegIDS = [], segmentOffsets = [], segmentlenghts = [], segmentAttribute = [], segIDs = [], lodPositions = [];
 
+// Just added
+function readGUID(jtDataReader) {
+    var i, rawDataGUID = [];
+    for (i = 0; i < 16; ++i) {
+        rawDataGUID.push(jtDataReader.getData8().toString(16));
+    }
+    return rawDataGUID.join("");
+}
+
+// Updated JTDataReader
 class JTDataReader {
-    constructor(filename) {
+    constructor() {
+        this.jtFile = null;
+        this.position = 0;
+        this.isdone = true;
+        this.bitsLeft = 0;
+    }
+
+    initFromFile(filename) {
         this.jtFile = new FileReader();
         this.position = 0;
         this.jtFile.readAsArrayBuffer(filename);
@@ -12,6 +29,19 @@ class JTDataReader {
         this.bitsLeft = 0;
         this.jtFile.addEventListener('loadend', this.initArray.bind(this));
     }
+
+    initFromArray(dataArray) {
+        var bs, j, k, dataLen = dataArray.length;
+
+        this.data8Array = new Uint8Array(4 * dataLen);
+        for (j = 0; j < dataLen; ++j) {
+            for (k = 0; k < 4; ++k) {
+                this.data8Array[j * 4 + k] = (dataArray[j] >>> (k * 8)) & 0xFF;
+            }
+        }
+        this.position = 0;
+    }
+
     initArray() {
         this.data8Array = new Uint8Array(this.jtFile.result);
         this.isdone = true;
@@ -22,12 +52,14 @@ class JTDataReader {
     }
 
     universalGetData(amo, endi) {
-        var i, val = 0;
+        var i, val = 0xFFFF;
         if (endi == 0) {
+            val = 0;
             for (i = 0; i < amo; ++i) {
                 val = val | (this.data8Array[this.position++] << (i * 8))
             }
         } else {
+            val = 0;
             for (i = (amo - 1); i >= 0; --i) {
                 val = val | (this.data8Array[this.position++] << (i * 8))
             }
@@ -44,13 +76,56 @@ class JTDataReader {
     }
 };
 
+//class JTDataReader {
+//    constructor(filename) {
+//        this.jtFile = new FileReader();
+//        this.position = 0;
+//        this.jtFile.readAsArrayBuffer(filename);
+//        this.isdone = false;
+//        this.bitsLeft = 0;
+//        this.jtFile.addEventListener('loadend', this.initArray.bind(this));
+//    }
+//    initArray() {
+//        this.data8Array = new Uint8Array(this.jtFile.result);
+//        this.isdone = true;
+//    }
+
+//    getData8() {
+//        return this.data8Array[this.position++];
+//    }
+
+//    universalGetData(amo, endi) {
+//        var i, val = 0;
+//        if (endi == 0) {
+//            for (i = 0; i < amo; ++i) {
+//                val = val | (this.data8Array[this.position++] << (i * 8))
+//            }
+//        } else {
+//            for (i = (amo - 1); i >= 0; --i) {
+//                val = val | (this.data8Array[this.position++] << (i * 8))
+//            }
+//        }
+//        return val;
+//    }
+
+//    getData16(endi) {
+//        return this.universalGetData(2, endi);
+//    }
+
+//    getData32(endi) {
+//        return this.universalGetData(4, endi);
+//    }
+//};
+
 
 //bodyAppend("p", "rrrrbuildBits: " + buildBits.toString(2) + "; bitsLeft: " + this.bitsLeft+ ";  data: " +this.data.toString(2) + " (" + this.data.toString(16) + ")");
 
 class JTBitReader {
     constructor(jtDataReader) {
         this.jtDataReader = jtDataReader;
-        this.data = jtDataReader.getData32(1); //normaly 1
+        this.endian = endian;
+        this.data = 0xFFFF;
+        this.data = jtDataReader.getData32(endian); //normaly 1
         this.old = this.data;
         this.bitsLeft = 32;
     }
@@ -80,7 +155,7 @@ class JTBitReader {
                 numBits = numBits - this.bitsLeft;
                 buildBits = this.data << (numBits);
             }
-            this.data = this.jtDataReader.getData32(1);
+            this.data = this.jtDataReader.getData32(this.endian);
             this.bitsLeft = 32;
         }
         this.bitsLeft = this.bitsLeft - numBits;
@@ -124,29 +199,52 @@ class jtHeader {
     }
 };
 
+//just added
+class jtTOCEntry {
+    constructor(jtDataReader) {
+        this.jtDataReader = jtDataReader;
+        this.guidSegID = "";
+        this.segmentOffset = 0;
+        this.segmentlength = 0;
+        this.segmentAttribute = 0;
+    }
+    read() {
+        var i, segmentGUID = [];
+        for (i = 0; i < 16; ++i) {
+            segmentGUID.push(this.jtDataReader.getData8().toString(16));
+        }
+        this.guidSegID = segmentGUID.join("");     // guidSegIDs speichert die Arrays von Array segmentGUID (ARRAY VON ARRAY)
+        this.segmentOffset = this.jtDataReader.getData32(0);
+        this.segmentlength = this.jtDataReader.getData32(0);
+        this.segmentAttribute = this.jtDataReader.getData32(0);
+    }
+
+
+    print() {
+        bodyAppend("p", "guidSegID: " + this.guidSegID);
+        bodyAppend("p", "  segmentOffset: " + this.segmentOffset);
+        bodyAppend("p", "  segmentlength: " + this.segmentlength);
+        bodyAppend("p", "  segmentAttribute: " + this.segmentAttribute);
+    }
+
+
+}
+
 class jtTOC {
+
     constructor(jtDataReader) {
         this.jtDataReader = jtDataReader;
         this.entryCount = 0;
-        this.guidSegID = "";
-        this.segmentOffset = 0;
-        this.segmentlenght = 0;
-        this.segmentAttribute = 0; 
-        //var guidSegIDS = [], segmentOffsets = [], segmentlenghts = [], segmentAttribute= [];
+        this.tocEntries = [];
     }
     read() {
-        
+        var oneEntry;
         this.entryCount = this.jtDataReader.getData32(0);
-        for (x = 0; x < this.entryCount; ++x)
-        {
-            for (i = 0; i < 16; ++i) {
-                segmentGUID.push(this.jtDataReader.getData8().toString(16));
-            }
-            this.guidSegID = guidSegIDS.push(segmentGUID.join(""));     // guidSegIDs speichert die Arrays von Array segmentGUID (ARRAY VON ARRAY)
-            
-            this.segmentOffset = segmentOffsets.push( this.jtDataReader.getData32(0));
-            this.segmentlenght = segmentlenghts.push( this.jtDataReader.getData32(0));
-            this.segmentAttribute = segmentAttribute.push( this.jtDataReader.getData32(0));
+
+        for (x = 0; x < this.entryCount; ++x) {
+            oneEntry = new jtTOCEntry(this.jtDataReader);
+            oneEntry.read();
+            this.tocEntries.push(oneEntry);
         }
     }
 
@@ -155,13 +253,49 @@ class jtTOC {
         var x;
         bodyAppend("p", "EntryCount:" + this.entryCount);
         for (x = 0; x < this.entryCount; ++x) {
-            bodyAppend("p", "guidSegID: " + guidSegIDS[x]);
-            bodyAppend("p", "segmentOffset: " + segmentOffsets[x]);
-            bodyAppend("p", "segmentLenght: " + segmentlenghts[x]);
-            bodyAppend("p", "segmentAttribute: " + segmentAttribute[x]);
+            this.tocEntries[x].print();
         }
     }
 }
+
+//class jtTOC {
+//    constructor(jtDataReader) {
+//        this.jtDataReader = jtDataReader;
+//        this.entryCount = 0;
+//        this.guidSegID = "";
+//        this.segmentOffset = 0;
+//        this.segmentlenght = 0;
+//        this.segmentAttribute = 0; 
+//        //var guidSegIDS = [], segmentOffsets = [], segmentlenghts = [], segmentAttribute= [];
+//    }
+//    read() {
+        
+//        this.entryCount = this.jtDataReader.getData32(0);
+//        for (x = 0; x < this.entryCount; ++x)
+//        {
+//            for (i = 0; i < 16; ++i) {
+//                segmentGUID.push(this.jtDataReader.getData8().toString(16));
+//            }
+//            this.guidSegID = guidSegIDS.push(segmentGUID.join(""));     // guidSegIDs speichert die Arrays von Array segmentGUID (ARRAY VON ARRAY)
+            
+//            this.segmentOffset = segmentOffsets.push( this.jtDataReader.getData32(0));
+//            this.segmentlenght = segmentlenghts.push( this.jtDataReader.getData32(0));
+//            this.segmentAttribute = segmentAttribute.push( this.jtDataReader.getData32(0));
+//        }
+//    }
+
+
+//    print() {
+//        var x;
+//        bodyAppend("p", "EntryCount:" + this.entryCount);
+//        for (x = 0; x < this.entryCount; ++x) {
+//            bodyAppend("p", "guidSegID: " + guidSegIDS[x]);
+//            bodyAppend("p", "segmentOffset: " + segmentOffsets[x]);
+//            bodyAppend("p", "segmentLenght: " + segmentlenghts[x]);
+//            bodyAppend("p", "segmentAttribute: " + segmentAttribute[x]);
+//        }
+//    }
+//}
 
 function getPosition() {
     var i, curPosition;
@@ -234,6 +368,78 @@ class bitLenghtDecoder {
 }
 
 
+// Compressed Data Packet mk.2
+class CDP2 { // Figure 150 (left side missing)
+    constructor(jtDataReader, predictorType) {
+        this.jtDataReader = jtDataReader;
+        this.valueCount = 0;
+        this.CODECType = 0;
+        this.codeTextLength = 0;
+        this.predictorType = 0;    // implemetation fehlt noch
+        this.probabilityContexts = null; // implemetation fehlt noch
+        this.OOBValues = []; // implemetation fehlt noch
+        this.encodedData = [];
+        this.decodedData = [];
+    }
+
+    decodeBitlength(valCount, ctLength, encodedData) {
+        var cBitsInMinSymbol, cBitsInMaxSymbol;
+        var dataReader = new JTDataReader();
+        dataReader.initFromArray(encodedData);
+        var bitReader = new JTBitReader(dataReader, 0);
+        var isVariable = bitReader.getBits(1);
+
+        if (isVariable == 0) {
+            cBitsInMinSymbol = bitReader.getBits(6);
+            cBitsInMaxSymbol = bitReader.getBits(6);
+            // just for testing
+            bodyAppend("p", "cBitsInMinSymbol: " + cBitsInMinSymbol.toString(2));
+            bodyAppend("p", "cBitsInMaxSymbol: " + cBitsInMaxSymbol.toString(2));
+
+            //...
+        } else {
+            // not implemented yet
+        }
+    }
+
+    read() {
+        var i, vals2read = 0;
+        this.valueCount = this.jtDataReader.getData32(0);
+        this.CODECType = this.jtDataReader.getData8();
+
+        if (this.CODECType < 4) {
+            this.codeTextLength = this.jtDataReader.getData32(0);
+            vals2read = Math.ceil(this.codeTextLength / 32.);
+            for (i = 0; i < vals2read; ++i) {
+                this.encodedData.push(this.jtDataReader.getData32(0));
+            }
+            if (this.CODECType == 3) { // Arithmetic 
+                // read prob context
+                // read oob Values
+                // decode
+            } else if (this.CODECType == 1) { // BitLength
+                this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
+            } else if (this.CODECType == 0) { // NULL decoder
+                for (i = 0; i < this.valueCount; ++i) {
+                    this.decodedData.push(this.encodedData[i]);
+                }
+            }
+        } else {
+            //Anything else but none/bitLength or Arithmitic: not yet implemented
+        }
+    }
+    print() {
+        bodyAppend("p", "versionString: " + this.versionString);
+        bodyAppend("p", "byteOrder: " + this.byteOrder);
+        bodyAppend("p", "emptyField: " + this.emptyField);
+        bodyAppend("p", "tocOffset: " + this.tocOffset);
+        bodyAppend("p", "LSGSegmentID: " + this.LSGSegmentID);
+    }
+};
+
+
+
+
 function loadFile() {
     var input, file, fr, blob;
 
@@ -294,6 +500,10 @@ function showFile() {
     getPosition();
     fileSegment.read();
     fileSegment.print();
+
+    streamReader.position = 1669;
+    facedegree = new CDP2(streamReader);
+    facedegree.read();
 
     //getPosition();
     //streamReader.position = 1678;
