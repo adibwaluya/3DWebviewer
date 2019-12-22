@@ -1,5 +1,5 @@
 Ort:
-1. Das Programm befindet sich in team2\JTWebViewer
+1. Das Programm befindet sich in team2\JTViewer
 2. Um das Ergebnis vom Progamm im Webbrowser zu schauen, befindet sich die Datei index.html in team2\JTWebViewer\JTWebViewer (mit gewuenschten
    Webbrowser geoeffnet)
 3. JT-Dateien befinden sich in team2\JT_Files
@@ -14,3 +14,4 @@ b. Mozilla Firefox (strg + shift + k) bei Debugger.
 2. Die Taste "Datei Auswaehlen" wird verwendet, um die JT-Datei vom Ordner zu finden, und mit der Taste Load wird die 
    JT-Datei (in Form von Hexadezimalzahl) unter der GUI geladen.
  
+3. Die Datei wird bis zu den LOD Segmenten ausgelesen. Leider fehlen noch die Dekodierungsverfahren. Einer ist schon implentiert, aber ist noch nicht ganz lauffähig.
