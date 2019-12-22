@@ -1,4 +1,4 @@
-// Load JT-Datei to web browser
+// Load JT-Data to web browser
 var streamReader;
 //var TOC;
 var i, x,
@@ -286,7 +286,7 @@ class CDP2 { // Figure 150 (left side missing)
                 }
             }
         } else {
-            //Anything else but none/bitLength or Arithmitic: not yet implemented
+            //Anything else but none/bitLength or Arithmetic: not yet implemented
         }
     }
     print() {
@@ -350,7 +350,6 @@ function showFile() {
     getPosition();
     for (i = 0; i < lodPosition.length; ++i) {
         streamReader.position = lodPosition[i];
-        //return lodPosition[i];
         fileSegment.read();
         fileSegment.print();
     }
