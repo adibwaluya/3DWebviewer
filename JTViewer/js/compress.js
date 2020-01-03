@@ -59,9 +59,11 @@ class CDP2 { // Figure 150 (left side missing)
         } else {
             //Anything else but none/bitLength or Arithmitic: not yet implemented
         }
+
     }
     print() {
-        bodyAppend("p", "encoded: " + this.codeTextLength);
+        bodyAppend("p", "TopologicalCompressedRepData: faceDegrees: ");
+        bodyAppend("p", "CDP Package: valueCount: " + this.valueCount + "; CODECType: " + this.CODECType + "; codeTextLength: " + this.codeTextLength);
     }
 }
 
