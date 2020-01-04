@@ -63,7 +63,10 @@ class CDP2 { // Figure 150 (left side missing)
     }
     print() {
         bodyAppend("p", "TopologicalCompressedRepData: faceDegrees: ");
-        bodyAppend("p", "CDP Package: valueCount: " + this.valueCount + "; CODECType: " + this.CODECType + "; codeTextLength: " + this.codeTextLength);
+        for (i = 0; i < this.encodedData.length; ++i) {
+            this.originalData = this.encodedData[i].toString(16);
+        }
+        bodyAppend("p", "CDP Package: valueCount: " + this.valueCount + "; CODECType: " + this.CODECType + "; codeTextLength: " + this.codeTextLength + "; Original values: " + this.originalData);
     }
 }
 
