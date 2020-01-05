@@ -19,7 +19,7 @@ class CDP2 { // Figure 150 (left side missing)
     }
 
     decodeBitlength(valCount, ctLength, encodedData) {
-        var cBitsInMinSymbol, cBitsInMaxSymbol, iMaxSymbol, iMinSymbol, cNumCurBits = 0, nBits = 0, nTotalBits = 0, nSyms = 0, i = 0, localEncodes = [], cdp;
+        var cBitsInMinSymbol, cBitsInMaxSymbol, iMaxSymbol, iMinSymbol, cNumCurBits = 0, nBits = 0, nTotalBits = 0, nSyms = 0, i = 0, localEncodes = [], cdp, arrayValues = [];
         var dataReader = new JTDataReader(); 
         while(i < encodedData.length){
 
@@ -54,6 +54,9 @@ class CDP2 { // Figure 150 (left side missing)
                     this.ovValues.push(this.iSymbol);
                     ++nSyms;
                 }
+                arrayValues.push(this.ovValues);
+                this.originalValue = arrayValues.join(" ");
+                this.ovValues = [];
             }
 
             else{
@@ -70,7 +73,7 @@ class CDP2 { // Figure 150 (left side missing)
         if (iSym == 0) { return 0; }
         else {
             cMaxCodeSpan = Math.abs(iSym);
-            for (i = 1, nBits = 0; i <= cMaxCodeSpan && nBits < 31; ++i, ++nBits) {
+            for (i = 1, nBits = 0; i <= cMaxCodeSpan && nBits < 31; i+=i, ++nBits) {
                 // Empty, only return nBits 
             }
             return nBits;
@@ -113,10 +116,7 @@ class CDP2 { // Figure 150 (left side missing)
             this.originalData = this.encodedData[i].toString(16);
         }
         bodyAppend("p", "CDP Package: valueCount: " + this.valueCount + "; CODECType: " + this.CODECType + "; codeTextLength: " + this.codeTextLength + "; Original values: " + this.originalData);
-        bodyAppend("p", "outVals: " + this.ovValues);
-        //bodyAppend("p", "decoded: " + this.decodedData);
-        //bodyAppend("p", "Max Symbol: " + this.iMaxSymbol);
-        
+        bodyAppend("p", "outVals: " + this.originalValue);        
     }
 };
 
