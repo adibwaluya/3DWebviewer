@@ -30,12 +30,12 @@ class CDP2 { // Figure 150 (left side missing)
 
             // if array encodedData has more than 1 element, always the element in the next index will be read
             else if (encodedData.length > 1) {
-            localEncodes.push(encodedData[i+1]);        // STILL NEEDS TO BE IMPROVED SOON!
+            localEncodes.push(encodedData[i+1]);                            
             }   
 
             dataReader.initFromArray(localEncodes);
-            var bitReader = new JTBitReader(dataReader, 0);     // To read the bits of the specific data, bitReader will be implemented
-            cdp = new CDP2(dataReader);                 // will be required to implement a methode from class CDP2
+            var bitReader = new JTBitReader(dataReader, 0);                 // To read the bits of the specific data, bitReader will be implemented
+            cdp = new CDP2(dataReader);                                     // will be required to implement a methode from class CDP2
             var isVariable = bitReader.getBits(1);
 
             if (isVariable == 0) {
@@ -87,7 +87,6 @@ class CDP2 { // Figure 150 (left side missing)
         this.CODECType = this.jtDataReader.getData8();
         if (this.CODECType < 4) {
             this.codeTextLength = this.jtDataReader.getData32(0).toString(16);
-            //this.originalValues = this.jtDataReader.getData32(0).toString(16);
             vals2read = Math.ceil(this.codeTextLength / 32.);
             for (i = 0; i < vals2read; ++i) {
                 this.encodedData.push(this.jtDataReader.getData32(0));

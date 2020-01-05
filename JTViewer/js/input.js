@@ -18,6 +18,7 @@ class JTDataReader {
         this.jtFile.addEventListener('load', this.initArray.bind(this));
     }
 
+    // Read 8/16/32 bits of Data from Array
     initFromArray(dataArray) {
         var bs, j, k, dataLen = dataArray.length;
 
@@ -33,7 +34,7 @@ class JTDataReader {
     }
     // END REVISION
 
-    // Read 8/16/32 bits of Data from Array
+    // Save the whole hexadecimal datas in arrays
     initArray() {
         this.data8Array = new Uint8Array(this.jtFile.result);
         this.isdone = true;

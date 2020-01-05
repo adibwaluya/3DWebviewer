@@ -17,40 +17,8 @@ class jtSegments {
         // TopoMeshLODData
         this.topoVersionNumber = 0;
         this.vertexRecordsObjectID = 0;
-        this.scndTopoVersionNumber = 0;
-        // Compressed Data Package Mk 2
-        // WARNING: HUGE REVISION!
-        //this.jtDataReader = jtDataReader;
-        //this.valueCount = 0;
-        //this.CODECType = 0;
-        //this.codeTextLength = 0;
-        //this.originalValues = 0;
-        //this.predictorType = 0;    // not implemented yet
-        //this.probabilityContexts = null; // not implemented yet
-        //this.OOBValues = []; // not implemented yet
-        //this.encodedData = [];
-        //this.decodedData = []; 
+        this.scndTopoVersionNumber = 0; 
     }
-
-    //decodeBitlength(valCount, ctLength, encodedData) {
-    //    var cBitsInMinSymbol, cBitsInMaxSymbol;
-    //    var dataReader = new JTDataReader();
-    //    dataReader.initFromArray(encodedData);
-    //    var bitReader = new JTBitReader(dataReader, 0);
-    //    var isVariable = bitReader.getBits(1);
-
-    //    if (isVariable == 0) {
-    //        cBitsInMinSymbol = bitReader.getBits(6);
-    //        cBitsInMaxSymbol = bitReader.getBits(6);
-    //        // just for testing
-    //        bodyAppend("p", "cBitsInMinSymbol: " + cBitsInMinSymbol.toString(2));
-    //        bodyAppend("p", "cBitsInMaxSymbol: " + cBitsInMaxSymbol.toString(2));
-
-    //        //...
-    //    } else {
-    //        // not implemented yet
-    //    }
-    //}
 
     read() {
         var segIDs = [], objectTypeIDs = [], i, vals2read = 0;
@@ -84,35 +52,6 @@ class jtSegments {
         this.topoVersionNumber = this.jtDataReader.getData16(0);
         this.vertexRecordsObjectID = this.jtDataReader.getData32(0).toString(16);
         this.scndTopoVersionNumber = this.jtDataReader.getData16(0);
-
-        // CDP2
-        // WARNING: HUGE REVISION!
-        //this.valueCount = this.jtDataReader.getData32(0).toString(16);
-        //this.CODECType = this.jtDataReader.getData8();
-        //this.codeTextLength = this.jtDataReader.getData32(0).toString(16);
-        //this.originalValues = this.jtDataReader.getData32(0).toString(16);
-        
-        //if (this.CODECType < 4) {
-        //    this.codeTextLength = this.jtDataReader.getData32(0);
-        //    vals2read = Math.ceil(this.codeTextLength / 32.);
-        //    for (i = 0; i < vals2read; ++i) {
-        //        this.encodedData.push(this.jtDataReader.getData32(0));
-        //    }
-        //    if (this.CODECType == 3) { // Arithmetic 
-        //        // read prob context
-        //        // read oob Values
-        //        // decode
-        //    } else if (this.CODECType == 1) { // BitLength
-        //        this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
-        //    } else if (this.CODECType == 0) { // NULL decoder
-        //        for (i = 0; i < this.valueCount; ++i) {
-        //            this.decodedData.push(this.encodedData[i]);
-        //        }
-        //    }
-        //} else {
-        //    //Anything else but none/bitLength or Arithmetic: not yet implemented
-        //}
-
     }
 
     print() {
@@ -134,11 +73,5 @@ class jtSegments {
         // TopoMeshTopologicalCompressedLODData
         // TopoMeshLODData
         bodyAppend("p", "TopoMeshTopologicalCompressedLODData (TopoMeshLODData (VersionNumber: " + this.topoVersionNumber + "; VertexRecordsObjectID: " + this.vertexRecordsObjectID + ")); VersionNumber: " + this.scndTopoVersionNumber);
-
-        // CDP2
-        // WARNING: HUGE REVISION!
-        //bodyAppend("p", "TopologicalCompressedRepData: Face Degrees: ");
-        //bodyAppend("p", "CDP Package: valueCount: " + this.valueCount + "; CODECType: " + this.CODECType + "; codeTextLength: " + this.codeTextLength + "; Original Values: " + this.originalValues);
-        //bodyAppend("p", "decoded: " + this.decodedData);
     }
 }
