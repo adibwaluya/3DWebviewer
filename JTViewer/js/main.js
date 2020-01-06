@@ -139,6 +139,7 @@ function showFile() {
     fileSegment = new jtSegments(streamReader);
     topoCompressedRepData = new CDP2(streamReader);
     getPosition();
+    exponent = new CDP2(streamReader);
     for (i = 0; i < lodPosition.length; ++i) {
         streamReader.position = lodPosition[i];
         fileSegment.read();
@@ -146,6 +147,9 @@ function showFile() {
         fileSegment.print();
         topoCompressedRepData.print();
     }
+    streamReader.position = 1910;
+    exponent.read();
+    exponent.print();
 }
 
 function bodyAppend(tagName, innerHTML) {

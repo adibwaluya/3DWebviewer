@@ -16,24 +16,17 @@ class CDP2 { // Figure 150 (left side missing)
         this.encodedData = [];
         this.decodedData = [];
         this.ovValues = [];
+        this.values = [];
     }
 
     decodeBitlength(valCount, ctLength, encodedData) {
         var cBitsInMinSymbol, cBitsInMaxSymbol, iMaxSymbol, iMinSymbol, cNumCurBits = 0, nBits = 0, nTotalBits = 0, nSyms = 0, i = 0, localEncodes = [], cdp, arrayValues = [];
         var dataReader = new JTDataReader(); 
+
         while(i < encodedData.length){
 
-            // if array encodedData only has 1 element, that first and the only element will be read
-            if (encodedData.length == 1) {
-            localEncodes.push(encodedData[i]);
-            }
-
-            // if array encodedData has more than 1 element, always the element in the next index will be read
-            else if (encodedData.length > 1) {
-            localEncodes.push(encodedData[i+1]);                            
-            }   
-
-            dataReader.initFromArray(localEncodes);
+            this.values.push(this.encodedData);
+            dataReader.initFromArray(encodedData);
             var bitReader = new JTBitReader(dataReader, 0);                 // To read the bits of the specific data, bitReader will be implemented
             cdp = new CDP2(dataReader);                                     // will be required to implement a methode from class CDP2
             var isVariable = bitReader.getBits(1);
@@ -102,6 +95,7 @@ class CDP2 { // Figure 150 (left side missing)
                     this.decodedData.push(this.encodedData[i]);
                 }
             }
+            this.encodedData = [];
 
         } else {
             //Anything else but none/bitLength or Arithmitic: not yet implemented
@@ -111,8 +105,8 @@ class CDP2 { // Figure 150 (left side missing)
     print() {
         var i;
         bodyAppend("p", "TopologicalCompressedRepData: faceDegrees: ");
-        for (i = 0; i < this.encodedData.length; ++i) {
-            this.originalData = this.encodedData[i].toString(16);
+        for (i = 0; i < this.values.length; ++i) {
+            this.originalData = this.values[i].toString(16);
         }
         bodyAppend("p", "CDP Package: valueCount: " + this.valueCount + "; CODECType: " + this.CODECType + "; codeTextLength: " + this.codeTextLength + "; Original values: " + this.originalData);
         bodyAppend("p", "outVals: " + this.originalValue);        
