@@ -105,7 +105,7 @@ class JTBitReader {
             this.bitsLeft = 32;
         }
         this.bitsLeft = this.bitsLeft - numBits;
-        buildBits = buildBits | (this.data >>> (this.bitsLeft));
+        buildBits = buildBits | (this.data >>> (this.bitsLeft));            // n = this.data; _nLBits/_nRBits = this.bitsLeft
         this.data = this.data & (0xFFFFFFFF >>> (32 - this.bitsLeft));
 
         return buildBits;
