@@ -11,12 +11,15 @@ class CDP2 { // Figure 150 (left side missing)
         this.predictorType = 0;    
         this.originalData = 0;
         this.originalValue = 0;
-        this.probabilityContexts = null; 
+        this.probabilityContexts = null;
+        this.bitBuff = 0; 
         this.OOBValues = []; 
         this.encodedData = [];
         this.decodedData = [];
         this.ovValues = [];
         this.values = [];
+        this.iCurCodeText = 0;
+        this.pcCodeTextLen = 0;
     }
 
     decodeBitlength(valCount, ctLength, encodedData) {
@@ -72,6 +75,72 @@ class CDP2 { // Figure 150 (left side missing)
             return nBits;
             nBits = 0;
         }
+    }
+
+    // Arithmetic decoder!!!
+    ArithmeticCodec2(valCount, vOOBValues, ctLength, encodedData, probContx) {
+        var paiOOBValues = vOOBValues,
+            cSymbolsCurrCtx = probContx,
+            uBitBuff = 0,
+            nBitBuff = 0, 
+            low = 0,           // Start of the current code range
+            high = 0xffff,     // End of the current code range
+            rescaledCode = 0,
+            code = 0,          // Present input code value, for decoding only
+            iSym = 0,
+            inx = 0;
+
+        _code = (_uBitBuff >>> 16);
+        _uBitBuff <<= 16;
+        nBitBuff -= 16;
+
+        probContx = new ProbContext2(encodedData);
+        
+        for (i = 0; i < this.valueCount; ++i) {
+            rescaledCode = (((code - low) + 1) * cSymbolsCurrCtx - 1) / ((high - low) + 1);
+
+            probContx.lookUpEntryByCumCount(rescaledCode, cntxEntry);
+            if (cntxEntry == iSym != /*CntxEntryBase2::CEBEscape*/) {
+                this.ovValues.push(cntxEntry/*-> _val*/)
+            }
+            else {
+                this.ovValues.push(vOOBValues./*value(++inx)*/);
+            }
+            // removeSymbolFromStream(pCntxEntry->_cCumCount, pCntxEntry->_cCumCount + pCntxEntry->_cCount, cSymbolsCurrCtx);
+
+        }
+        this.flushDecoder();
+        return true;
+    }
+
+    _removeSymbolFromStream(uLowCt, uHighCt, uScale) {
+
+        var uRange, _high, _low, _code;
+
+        //First, the range is expanded to account for symbol removal
+        uRange = (-high - _low) + 1;
+        _high = _low + ((uRange * uHighCt) / uScale - 1);
+        _low = _low + ((uRange * uLowCt) / uScale - 1);
+        // If most signif digits match, the bits will be shifted out
+        for (; ;)
+            if (~(_high ^ _low) >>> 15) { }
+
+            else if (((_low >>> 14) == 1) && ((_high >>> 14) == 2)) {
+                _code ^ 0x4000;
+                _low & 0x3fff;
+                _high | 0x4000;
+            }
+            else {
+                return true;
+            }
+
+        _low << 1;
+        _high << 1;
+        _high | 1;
+        _code << 1;
+        // originally ReadBit0(_code)
+        getBits(_code);
+
     }
 
     read() {
