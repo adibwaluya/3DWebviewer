@@ -7,57 +7,49 @@ class ProbContext2 {
 
     }
 
-    lookupValue(rValue, opCntxEntry) {
-        opCntxEntry = null;
-        pThis = this;
-        // pEntries = pThis -> -vEntries.ptr();
-        nEntries = _vEntrieslenght();
-        if (_iEscPosCache == -1) {
-            bFoundEsc = false;
-            for (i = 0; i < nEntries; i++) {
-                if (pEntries[i]._isym == CEBEscape) {
-                    swap(pEntries[0], pEntries[i]);
-                    bFoundEsc = true;
-                    break;
+
+
+    lookupEntryByCumCount(iCount) {
+        var nEntries = _vEntries.length(), seqSearchLen = 4, ii = 0;
+      
+        // For short lists, do sequential search
+        if (nEntries <= (seqSearchLen * 2)) {
+            ii = 0;
+            while ((iCount >= (vEntries.value(ii)._cCumCount + vEntries.value(ii)._cCount)) && (ii < nEntries)) {
+                ii++;
+            }
+            if (ii >= nEntries) {
+                //assert(0 && "Bad probability table");
+            }
+            return _vEntries.valueP(ii);
+        }
+        // For long lists, do a short sequential searches through most likely
+        // elements, then do a binary search through the rest.
+        else {
+            for (ii = 0; ii < seqSearchLen; ii++) {
+                if (iCount < (vEntries.value(ii)._cCumCount + vEntries.value(ii)._cCount)) {
+                    return _vEntries.valueP(ii);
                 }
             }
-            if (bFoundEsc) {
-                sort(pEntries[1], pEntries[nEntries - 1], FtorCntxValue());
-                //pthis -> accumulateCounts();
-                //pthis -> _iEscPosCache = 0;
+            Int32 low = ii, high = nEntries - 1, mid;
+            while (1) {
+                if (high < low) {
+                    break;
+                }
+                mid = low + ((high - low) >> 1);
+                if (iCount < _vEntries.value(mid)._cCumCount) {
+                    high = mid - 1;
+                    continue;
+                }
+                if (iCount >= (vEntries.value(mid)._cCumCount + vEntries.value(mid)._cCount)) {
+                    low = mid + 1;
+                    continue;
+                }
+                return _vEntries.valueP(mid);
             }
-            else {
-                //pThis -> sortByValue();
-                //pThis -> _iEscPosCache=-2;
-            }
+            assert(0 && "Bad probability table");
         }
-
-        l = (_iEscPosCache == 0), h = nEntries - 1, m, d;
-        while (l <= h) {
-            m = (l + h) >>> 1;
-            d = pEntries[m]._val - rValue;
-            if (d == 0) {
-                opCntxEntry = pEntries[m];
-                return true;
-            }
-            else if (d < 0)
-                l = m + 1;
-            else h = m - 1
-        }
-        if (_iEscPosCache >= 0)
-            opCntxEntry = pEntries[_iEscPosCache];
-        return true;
-
-
-
-
-    }
-
-    lookUpEntryByCumCount(iCount, cntxEntry) {
-        if (this.entries <= this.seqSearchLen * 2) {
-            this.ii = 0;
-            //while (iCount >= ())
-        }
+        return NULL;
     }
 
     accumulateCounts() {

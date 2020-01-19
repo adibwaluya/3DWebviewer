@@ -7,17 +7,22 @@ class CDP2 { // Figure 150 (left side missing)
         this.CODECType = 0;
         this.codeTextLength = 0;
         this.originalValues = 0;
+        //this.iMaxSymbol = 0;
+        //this.iMinSymbol = 0;
         this.iSymbol = 0;
-        this.predictorType = 0;    
+        this.predictorType = 0;    // implemetation fehlt noch
         this.originalData = 0;
         this.originalValue = 0;
-        this.probabilityContexts = null;
-        this.bitBuff = 0; 
-        this.OOBValues = []; 
+        // Constructors for Arithmetic
+        this.probabilityContexts = null; // implemetation fehlt noch
+        this.bitBuff = 0;
+        this.OOBValues = []; // implemetation fehlt noch
         this.encodedData = [];
         this.decodedData = [];
         this.ovValues = [];
         this.values = [];
+        this.probCxtEntries = [];
+        // Constructors for Codec2
         this.iCurCodeText = 0;
         this.pcCodeTextLen = 0;
     }
@@ -154,9 +159,22 @@ class CDP2 { // Figure 150 (left side missing)
                 this.encodedData.push(this.jtDataReader.getData32(0));
             }
             if (this.CODECType == 3) { // Arithmetic 
-                // read prob context
-                // read oob Values
-                // decode
+                var probCxtTableEntryCount, numberSymbolBits, numberOccurCountBits, numberValueBits, minValue;
+                //var amc = new ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, probCxT???);
+                var bitReader = new JTBitReader(this.jtDataReader, 1);
+                probCxtTableEntryCount = bitReader.getBits(16);
+                numberSymbolBits = bitReader.getBits(6);
+                numberOccurCountBits = bitReader.getBits(6);
+                numberValueBits = bitReader.getBits(6);
+                minValue = bitReader.getBits(32);
+                for (var i = 0; i < probCxtTableEntryCount; i++)
+                {
+                    this.probCxtEntries.push(bitReader.getBits(numberSymbolBits));
+                    this.probCxtEntries.push(bitReader.getBits(numberOccurCountBits));
+                    this.probCxtEntries.push(bitReader.getBits(numberValueBits));
+                }
+                this.OOBValues = this.jtDataReader.getData32(0);
+
             } else if (this.CODECType == 1) { // BitLengthdecode
                 this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
             } else if (this.CODECType == 0) { // NULL decoder
