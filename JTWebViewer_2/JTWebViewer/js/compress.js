@@ -82,85 +82,86 @@ class CDP2 { // Figure 150 (left side missing)
         }
     }
 
-//    // Arithmetic decoder!!!
-//    ArithmeticCodec2(valCount, vOOBValues, ctLength, encodedData, probContx) {
-//        var paiOOBValues = [],
-//            pCntxEntry = [],
-//            // cSymbolsCurrCtx = probContx,
-//            uBitBuff = 0,
-//            nBitBuff = 0,
-//            low = 0,           // Start of the current code range
-//            high = 0xffff,     // End of the current code range
-//            rescaledCode = 0,
-//            code = 0,          // Present input code value, for decoding only
-//            iSym = 0,
-//            inx = 0;
+    // Arithmetic decoder!!!
+    ArithmeticCodec2(valCount, ctLength, encodedData) {
+       
+            // cSymbolsCurrCtx = probContx,
+              // End of the current code range
+        var uBitBuff = encodedData, nBitBuff = ctLength, low = 0, high = 0xffff, rescaledCode = 0, code = 0,          // Present input code value, for decoding only
+            iSym = 0,
+            inx = 0;
+            
+                      // Start of the current code range
+            
+            
 
-//        _code = (_uBitBuff >>> 16);
-//        _uBitBuff <<= 16;
-//        nBitBuff -= 16;
+        code = (uBitBuff >>> 16);
+        uBitBuff <<= 16;
+        nBitBuff -= 16;
 
-//        probContx = new ProbContext2(encodedData);
-        
-//        for (i = 0; i < this.valueCount; ++i) {
-//            rescaledCode = (((code - low) + 1) * valCount - 1) / ((high - low) + 1);
+       
 
-//            probContx.lookUpEntryByCumCount(rescaledCode, cntxEntry);
-//            if (cntxEntry == iSym != /*CntxEntryBase2::CEBEscape*/) {
-//                this.ovValues.push(cntxEntry/*-> _val*/)
-//            }
-//            else {
-//                this.ovValues.push(vOOBValues./*value(++inx)*/);
-//            }
-//            // removeSymbolFromStream(pCntxEntry->_cCumCount, pCntxEntry->_cCumCount + pCntxEntry->_cCount, cSymbolsCurrCtx);
+        for (i = 0; i < valCount; ++i) {
+            
+            rescaledCode = (((code - low) + 1) * valCount - 1) / ((high - low) + 1);
+            rescaledCode = Math.round(rescaledCode);
 
-//        }
-//        this.flushDecoder();
-//        return true;
-//    }
+            //probContx.lookUpEntryByCumCount(rescaledCode, cntxEntry);
+            //if (cntxEntry == iSym != /*CntxEntryBase2::CEBEscape*/) {
+            //    this.ovValues.push(cntxEntry/*-> _val*/)
+            //}
+            //else {
+            //    this.ovValues.push(vOOBValues./*value(++inx)*/);
+            //}
+            //// removeSymbolFromStream(pCntxEntry->_cCumCount, pCntxEntry->_cCumCount + pCntxEntry->_cCount, cSymbolsCurrCtx);
 
-//    _removeSymbolFromStream(uLowCt, uHighCt, uScale) {
+        }
+        //this.flushDecoder();
+        return true;
+    }
 
-//        var uRange, _high, _low, _code;
+    //_removeSymbolFromStream(uLowCt, uHighCt, uScale) {
 
-//        //First, the range is expanded to account for symbol removal
-//        uRange = (-high - _low) + 1;
-//        _high = _low + ((uRange * uHighCt) / uScale - 1);
-//        _low = _low + ((uRange * uLowCt) / uScale - 1);
-//        // If most signif digits match, the bits will be shifted out
-//        for (; ;)
-//            if (~(_high ^ _low) >>> 15) { }
+    //    var uRange, _high, _low, _code;
 
-//            else if (((_low >>> 14) == 1) && ((_high >>> 14) == 2)) {
-//                _code ^ 0x4000;
-//                _low & 0x3fff;
-//                _high | 0x4000;
-//            }
-//            else {
-//                return true;
-//            }
+    //    //First, the range is expanded to account for symbol removal
+    //    uRange = (-high - _low) + 1;
+    //    _high = _low + ((uRange * uHighCt) / uScale - 1);
+    //    _low = _low + ((uRange * uLowCt) / uScale - 1);
+    //    // If most signif digits match, the bits will be shifted out
+    //    for (; ;)
+    //        if (~(_high ^ _low) >>> 15) { }
 
-//        _low << 1;
-//        _high << 1;
-//        _high | 1;
-//        _code << 1;
-//        // originally ReadBit0(_code)
-//        getBits(_code);
+    //        else if (((_low >>> 14) == 1) && ((_high >>> 14) == 2)) {
+    //            _code ^ 0x4000;
+    //            _low & 0x3fff;
+    //            _high | 0x4000;
+    //        }
+    //        else {
+    //            return true;
+    //        }
+
+    //    _low << 1;
+    //    _high << 1;
+    //    _high | 1;
+    //    _code << 1;
+    //    // originally ReadBit0(_code)
+    //    getBits(_code);
 
 
 
 
-//    }
+    //}
 
    
 
-//    getNextCodeText(uCodeText, nBits) {
+    //getNextCodeText(uCodeText, nBits) {
         
-//    }
+    //}
 
         
 
-//}
+
 
 
     
@@ -199,7 +200,7 @@ class CDP2 { // Figure 150 (left side missing)
             }
             if (this.CODECType == 3) { // Arithmetic 
                 var probCxtTableEntryCount, numberSymbolBits, numberOccurCountBits, numberValueBits, minValue;
-                //var amc = new ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, probCxT???);
+                this.decodedData = this.ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData);
                 var bitReader = new JTBitReader(this.jtDataReader, 1);
                 probCxtTableEntryCount = bitReader.getBits(16);
                 numberSymbolBits = bitReader.getBits(6);
@@ -218,9 +219,13 @@ class CDP2 { // Figure 150 (left side missing)
                 }
                 this.cCumCount[0] = 0;
                 this.cCumCount[1] = this.cCount[0];
-                for (i = 2; i < this.cCount.length; ++i) {                      // Summe der vorherigen Einträgen (cCumCount)
+                for (i = 2; i < this.cCount.length; ++i) {                      // Summe der vorherigen Einträgen in cCount (cCumCount)
                     this.cCumCount.push(this.cCumCount[i - 1] + this.cCount[i - 1]);
                 }
+
+
+
+
 
             } else if (this.CODECType == 1) { // BitLength
                 this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
