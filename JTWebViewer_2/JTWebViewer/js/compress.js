@@ -25,6 +25,12 @@ class CDP2 { // Figure 150 (left side missing)
         this.cCumCount = [];
         this.cCount = [];
         this.totalCount = [];
+        this.opcntxEntry = null;
+        this.currcCount;
+        this.currcCumCount;
+        this.high = 0xffff ;
+        this.low = 0;
+        this.code;
         // Constructors for Codec2
         this.iCurCodeText = 0;
         this.pcCodeTextLen = 0;
@@ -83,123 +89,139 @@ class CDP2 { // Figure 150 (left side missing)
     }
 
     // Arithmetic decoder!!!
-    ArithmeticCodec2(valCount, ctLength, encodedData, probEntries, cCount, cCumCount) {
-       
+    ArithmeticCodec2(valCount, ctLength, encodedData, probEntries, cCount, cCumCount, vOOBValues) {
+
         var uBitBuff = encodedData, nBitBuff = ctLength, low = 0, high = 0xffff, rescaledCode = 0, code = 0,          // Present input code value, for decoding only
-            iSym = 0,
-            inx = 0;
-            
-                      // Start of the current code range
-            
+            iSym = 0, mid;
+        var currTotalCount = 0;
+
+
+        // Start of the current code range
+
         code = (uBitBuff >>> 16);
         uBitBuff <<= 16;
         nBitBuff -= 16;
 
-       
+        for (i = 0; i < cCumCount.length; i++) {
+            currTotalCount += cCumCount[i];
+
+        }
 
         for (i = 0; i < valCount; ++i) {
-            
+
             rescaledCode = (((code - low) + 1) * valCount - 1) / ((high - low) + 1);
             rescaledCode = Math.round(rescaledCode);
-            this.lookupEntryByCumCount(rescaledCode);
+            this.lookupEntryByCumCount(rescaledCode, probEntries, cCount, cCumCount);
 
-            //probContx.lookUpEntryByCumCount(rescaledCode, cntxEntry);
-            //if (cntxEntry == iSym != /*CntxEntryBase2::CEBEscape*/) {
-            //    this.ovValues.push(cntxEntry/*-> _val*/)
-            //}
-            //else {
-            //    this.ovValues.push(vOOBValues./*value(++inx)*/);
-            //}
-            //// removeSymbolFromStream(pCntxEntry->_cCumCount, pCntxEntry->_cCumCount + pCntxEntry->_cCount, cSymbolsCurrCtx);
 
+            if (this.currcCount != -2) {
+                this.ovValues.push(this.opcntxEntry)
+            }
+            else {
+                this.ovValues.push(vOOBValues);
+            }
+
+            this.removeSymbolFromStream(this.currcCount, (this.currcCumCount + this.currCount), currTotalCount);
+           
         }
         //this.flushDecoder();
         return true;
     }
 
     lookupEntryByCumCount(iCount, probEntries, cCount, cCumCount) {
-        var nEntries = probEntries.length()/3, seqSearchLen = 4, ii = 0;
+        var nEntries = probEntries.length / 3;
+        var seqSearchLen = 4, ii = 0;
+
 
         // For short lists, do sequential search
         if (nEntries <= (seqSearchLen * 2)) {
             ii = 0;
-            while ((iCount >= (vEntries.value(ii)._cCumCount + vEntries.value(ii)._cCount)) && (ii < nEntries)) {
+            while (iCount >= (cCumCount[ii] + cCount[ii]) && (ii < nEntries)) {
                 ii++;
             }
             if (ii >= nEntries) {
                 //assert(0 && "Bad probability table");
             }
-            return _vEntries.valueP(ii);
+            this.opcntxEntry = probEntries[ii + ii * 3];
+            this.currcCount = cCount[ii];
+            this.currcCumCount = cCumCount[ii];
         }
         // For long lists, do a short sequential searches through most likely
         // elements, then do a binary search through the rest.
         else {
             for (ii = 0; ii < seqSearchLen; ii++) {
-                if (iCount < (vEntries.value(ii)._cCumCount + vEntries.value(ii)._cCount)) {
-                    return _vEntries.valueP(ii);
+                if (iCount < (cCumCount[ii] + cCount[ii])) {
+                    this.opcntxEntry = probEntries[ii + ii * 3];
+                    this.currcCount = cCount[ii];
+                    this.currcCumCount = cCumCount[ii];
+                    return true;
                 }
             }
-            Int32 low = ii, high = nEntries - 1, mid;
+
+            low = ii, high = nEntries - 1;
+
             while (1) {
                 if (high < low) {
                     break;
                 }
                 mid = low + ((high - low) >> 1);
-                if (iCount < _vEntries.value(mid)._cCumCount) {
+                if (iCount < cCumCount[mid]) {
                     high = mid - 1;
                     continue;
                 }
-                if (iCount >= (vEntries.value(mid)._cCumCount + vEntries.value(mid)._cCount)) {
+                if (iCount >= (cCumCount[mid] + cCount[mid])) {
                     low = mid + 1;
                     continue;
                 }
-                return _vEntries.valueP(mid);
+                this.opcntxEntry = probEntries[mid + ii * 3];
+                return true;
             }
-            assert(0 && "Bad probability table");
+
+            //assert(0 && "Bad probability table");
         }
-        return NULL;
+        return true;
     }
 
-    //_removeSymbolFromStream(uLowCt, uHighCt, uScale) {
+    removeSymbolFromStream(uLowCt, uHighCt, uScale)
+    {
 
-    //    var uRange, _high, _low, _code;
+        var uRange,
 
-    //    //First, the range is expanded to account for symbol removal
-    //    uRange = (-high - _low) + 1;
-    //    _high = _low + ((uRange * uHighCt) / uScale - 1);
-    //    _low = _low + ((uRange * uLowCt) / uScale - 1);
-    //    // If most signif digits match, the bits will be shifted out
-    //    for (; ;)
-    //        if (~(_high ^ _low) >>> 15) { }
+            //First, the range is expanded to account for symbol removal
+            uRange = (high - low) + 1;
+        high = low + ((uRange * uHighCt) / uScale - 1);
+        low = low + ((uRange * uLowCt) / uScale - 1);
+        // If most signif digits match, the bits will be shifted out
+        for (; ;)
+            if (~(high ^ low) >>> 15) { }
 
-    //        else if (((_low >>> 14) == 1) && ((_high >>> 14) == 2)) {
-    //            _code ^ 0x4000;
-    //            _low & 0x3fff;
-    //            _high | 0x4000;
-    //        }
-    //        else {
-    //            return true;
-    //        }
+            else if (((low >>> 14) == 1) && ((high >>> 14) == 2)) {
+                code ^ 0x4000;
+                low & 0x3fff;
+                high | 0x4000;
+            }
+            else {
+                return true;
+            }
 
-    //    _low << 1;
-    //    _high << 1;
-    //    _high | 1;
-    //    _code << 1;
-    //    // originally ReadBit0(_code)
-    //    getBits(_code);
-
+        low << 1;
+        high << 1;
+        high | 1;
+        code << 1;
 
 
 
-    //}
 
-   
+
+    }
+
+
 
     //getNextCodeText(uCodeText, nBits) {
-        
+
     //}
 
-        
+
 
 
 
@@ -261,7 +283,7 @@ class CDP2 { // Figure 150 (left side missing)
                 for (i = 2; i < this.cCount.length; ++i) {                      // Summe der vorherigen Einträgen in cCount (cCumCount)
                     this.cCumCount.push(this.cCumCount[i - 1] + this.cCount[i - 1]);
                 }
-                this.decodedData = this.ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, this.probCxtEntries, this.cCount, this.cCumCount);
+                this.decodedData = this.ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, this.probCxtEntries, this.cCount, this.cCumCount, this.OOBValues);
 
 
 
