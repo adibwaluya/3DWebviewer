@@ -22,6 +22,9 @@ class CDP2 { // Figure 150 (left side missing)
         this.ovValues = [];
         this.values = [];
         this.probCxtEntries = [];
+        this.cCumCount = [];
+        this.cCount = [];
+        this.totalCount = [];
         // Constructors for Codec2
         this.iCurCodeText = 0;
         this.pcCodeTextLen = 0;
@@ -210,8 +213,14 @@ class CDP2 { // Figure 150 (left side missing)
                     this.probCxtEntries.push(bitReader.getBits(numberValueBits));
                 }
                 this.OOBValues = this.jtDataReader.getData32(0);
-
-
+                for (i = 1; i < this.probCxtEntries.length; i + 3) {            // speicher das 2.Value von Entries in cCount
+                    this.cCount.push(this.probCxtEntries[i]);
+                }
+                this.cCumCount[0] = 0;
+                this.cCumCount[1] = this.cCount[0];
+                for (i = 2; i < this.cCount.length; ++i) {                      // Summe der vorherigen Einträgen (cCumCount)
+                    this.cCumCount.push(this.cCumCount[i - 1] + this.cCount[i - 1]);
+                }
 
             } else if (this.CODECType == 1) { // BitLength
                 this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
