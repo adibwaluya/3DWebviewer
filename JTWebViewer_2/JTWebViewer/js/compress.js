@@ -213,7 +213,7 @@ class CDP2 { // Figure 150 (left side missing)
                     this.probCxtEntries.push(bitReader.getBits(numberValueBits));
                 }
                 this.OOBValues = this.jtDataReader.getData32(0);
-                for (i = 1; i < this.probCxtEntries.length; i + 3) {            // speicher das 2.Value von Entries in cCount
+                for (i = 1; i < this.probCxtEntries.length; i = i + 3) {            // speicher das 2.Value von Entries in cCount
                     this.cCount.push(this.probCxtEntries[i]);
                 }
                 this.cCumCount[0] = 0;
