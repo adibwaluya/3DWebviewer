@@ -28,8 +28,8 @@ class CDP2 { // Figure 150 (left side missing)
         this.opcntxEntry = null;
         this.currcCount;
         this.currcCumCount;
-        this.high = 0xffff ;
-        this.low = 0;
+        this.high = 0xffff;
+        this.low = 0;       // Start of the current code range
         this.code;
         // Constructors for Codec2
         this.iCurCodeText = 0;
@@ -90,22 +90,18 @@ class CDP2 { // Figure 150 (left side missing)
 
     // Arithmetic decoder!!!
     ArithmeticCodec2(valCount, ctLength, encodedData, probEntries, cCount, cCumCount, vOOBValues) {
-
         var uBitBuff = encodedData, nBitBuff = ctLength, low = 0, high = 0xffff, rescaledCode = 0, code = 0,          // Present input code value, for decoding only
             iSym = 0, mid;
-        var currTotalCount = 0;
-
-
-        // Start of the current code range
+        var currTotalCount = valCount; // REVISED from 0
 
         code = (uBitBuff >>> 16);
         uBitBuff <<= 16;
         nBitBuff -= 16;
 
-        for (i = 0; i < cCumCount.length; i++) {
-            currTotalCount += cCumCount[i];
+        //for (i = 0; i < cCumCount.length; i++) {
+        //    currTotalCount += cCumCount[i];
 
-        }
+        //}
 
         for (i = 0; i < valCount; ++i) {
 
@@ -121,7 +117,7 @@ class CDP2 { // Figure 150 (left side missing)
                 this.ovValues.push(vOOBValues);
             }
 
-            this.removeSymbolFromStream(this.currcCount, (this.currcCumCount + this.currCount), currTotalCount);
+            this.removeSymbolFromStream(this.currcCount, (this.currcCumCount + this.currcCount), currTotalCount);
            
         }
         //this.flushDecoder();
@@ -158,19 +154,19 @@ class CDP2 { // Figure 150 (left side missing)
                 }
             }
 
-            low = ii, high = nEntries - 1;
+            this.low = ii, this.high = nEntries - 1;
 
             while (1) {
-                if (high < low) {
+                if (this.high < this.low) {
                     break;
                 }
-                mid = low + ((high - low) >> 1);
+                mid = this.low + ((this.high - this.low) >> 1);
                 if (iCount < cCumCount[mid]) {
-                    high = mid - 1;
+                    this.high = mid - 1;
                     continue;
                 }
                 if (iCount >= (cCumCount[mid] + cCount[mid])) {
-                    low = mid + 1;
+                    this.low = mid + 1;
                     continue;
                 }
                 this.opcntxEntry = probEntries[mid + ii * 3];
@@ -184,30 +180,29 @@ class CDP2 { // Figure 150 (left side missing)
 
     removeSymbolFromStream(uLowCt, uHighCt, uScale)
     {
-
-        var uRange,
+        var uRange;
 
             //First, the range is expanded to account for symbol removal
-            uRange = (high - low) + 1;
-        high = low + ((uRange * uHighCt) / uScale - 1);
-        low = low + ((uRange * uLowCt) / uScale - 1);
+        uRange = (this.high - this.low) + 1;
+        this.high = this.low + ((uRange * uHighCt) / uScale - 1);
+        this.low = this.low + ((uRange * uLowCt) / uScale - 1);
         // If most signif digits match, the bits will be shifted out
         for (; ;)
-            if (~(high ^ low) >>> 15) { }
+            if (~(this.high ^ this.low) >>> 15) { }
 
-            else if (((low >>> 14) == 1) && ((high >>> 14) == 2)) {
-                code ^ 0x4000;
-                low & 0x3fff;
-                high | 0x4000;
+            else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
+                this.code ^ 0x4000;
+                this.low & 0x3fff;
+                this.high | 0x4000;
             }
             else {
                 return true;
             }
 
-        low << 1;
-        high << 1;
-        high | 1;
-        code << 1;
+        this.low << 1;
+        this.high << 1;
+        this.high | 1;
+        this.code << 1;
 
 
 

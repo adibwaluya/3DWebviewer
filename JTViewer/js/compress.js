@@ -22,6 +22,15 @@ class CDP2 { // Figure 150 (left side missing)
         this.ovValues = [];
         this.values = [];
         this.probCxtEntries = [];
+        this.cCumCount = [];
+        this.cCount = [];
+        this.totalCount = [];
+        this.opcntxEntry = null;
+        this.currcCount;
+        this.currcCumCount;
+        this.high = 0xffff;
+        this.low = 0;       // Start of the current code range
+        this.code;
         // Constructors for Codec2
         this.iCurCodeText = 0;
         this.pcCodeTextLen = 0;
@@ -83,69 +92,119 @@ class CDP2 { // Figure 150 (left side missing)
     }
 
     // Arithmetic decoder!!!
-    ArithmeticCodec2(valCount, vOOBValues, ctLength, encodedData, probContx) {
-        var paiOOBValues = vOOBValues,
-            cSymbolsCurrCtx = probContx,
-            uBitBuff = 0,
-            nBitBuff = 0, 
+    ArithmeticCodec2(valCount, ctLength, encodedData, probEntries, cCount, cCumCount, vOOBValues) {
+        var uBitBuff = encodedData,
+            nBitBuff = ctLength, 
             low = 0,           // Start of the current code range
             high = 0xffff,     // End of the current code range
             rescaledCode = 0,
             code = 0,          // Present input code value, for decoding only
             iSym = 0,
-            inx = 0;
+            currTotalCount = valCount;
 
-        _code = (_uBitBuff >>> 16);
-        _uBitBuff <<= 16;
+        code = (uBitBuff >>> 16);
+        uBitBuff <<= 16;
         nBitBuff -= 16;
-
-        probContx = new ProbContext2(encodedData);
         
-        for (i = 0; i < this.valueCount; ++i) {
-            rescaledCode = (((code - low) + 1) * cSymbolsCurrCtx - 1) / ((high - low) + 1);
+        for (i = 0; i < valCount; ++i) {
+            rescaledCode = (((code - low) + 1) * valCount - 1) / ((high - low) + 1);
+            rescaledCode = Math.round(rescaledCode);
+            this.lookupEntryByCumCount(rescaledCode, probEntries, cCount, cCumCount);
 
-            probContx.lookUpEntryByCumCount(rescaledCode, cntxEntry);
-            if (cntxEntry == iSym != /*CntxEntryBase2::CEBEscape*/) {
-                this.ovValues.push(cntxEntry/*-> _val*/)
+
+            if (this.currcCount != -2) {
+                this.ovValues.push(this.opcntxEntry)
             }
             else {
-                this.ovValues.push(vOOBValues./*value(++inx)*/);
+                this.ovValues.push(vOOBValues);
             }
-            // removeSymbolFromStream(pCntxEntry->_cCumCount, pCntxEntry->_cCumCount + pCntxEntry->_cCount, cSymbolsCurrCtx);
 
+            this.removeSymbolFromStream(this.currcCount, (this.currcCumCount + this.currcCount), currTotalCount);
+           
         }
-        this.flushDecoder();
+        //this.flushDecoder();
         return true;
     }
 
-    _removeSymbolFromStream(uLowCt, uHighCt, uScale) {
+    lookupEntryByCumCount(iCount, probEntries, cCount, cCumCount) {
+        var nEntries = probEntries.length / 3;
+        var seqSearchLen = 4, ii = 0, mid;
 
-        var uRange, _high, _low, _code;
 
-        //First, the range is expanded to account for symbol removal
-        uRange = (-high - _low) + 1;
-        _high = _low + ((uRange * uHighCt) / uScale - 1);
-        _low = _low + ((uRange * uLowCt) / uScale - 1);
+        // For short lists, do sequential search
+        if (nEntries <= (seqSearchLen * 2)) {
+            ii = 0;
+            while (iCount >= (cCumCount[ii] + cCount[ii]) && (ii < nEntries)) {
+                ii++;
+            }
+            if (ii >= nEntries) {
+                //assert(0 && "Bad probability table");
+            }
+            this.opcntxEntry = probEntries[ii + ii * 3];
+            this.currcCount = cCount[ii];
+            this.currcCumCount = cCumCount[ii];
+        }
+        // For long lists, do a short sequential searches through most likely
+        // elements, then do a binary search through the rest.
+        else {
+            for (ii = 0; ii < seqSearchLen; ii++) {
+                if (iCount < (cCumCount[ii] + cCount[ii])) {
+                    this.opcntxEntry = probEntries[ii + ii * 3];
+                    this.currcCount = cCount[ii];
+                    this.currcCumCount = cCumCount[ii];
+                    return true;
+                }
+            }
+
+            this.low = ii, this.high = nEntries - 1;
+
+            while (1) {
+                if (this.high < this.low) {
+                    break;
+                }
+                mid = this.low + ((this.high - this.low) >> 1);
+                if (iCount < cCumCount[mid]) {
+                    this.high = mid - 1;
+                    continue;
+                }
+                if (iCount >= (cCumCount[mid] + cCount[mid])) {
+                    this.low = mid + 1;
+                    continue;
+                }
+                this.opcntxEntry = probEntries[mid + ii * 3];
+                return true;
+            }
+
+            //assert(0 && "Bad probability table");
+        }
+        return true;
+    }
+
+    removeSymbolFromStream(uLowCt, uHighCt, uScale)
+    {
+        var uRange;
+
+            //First, the range is expanded to account for symbol removal
+        uRange = (this.high - this.low) + 1;
+        this.high = this.low + ((uRange * uHighCt) / uScale - 1);
+        this.low = this.low + ((uRange * uLowCt) / uScale - 1);
         // If most signif digits match, the bits will be shifted out
         for (; ;)
-            if (~(_high ^ _low) >>> 15) { }
+            if (~(this.high ^ this.low) >>> 15) { }
 
-            else if (((_low >>> 14) == 1) && ((_high >>> 14) == 2)) {
-                _code ^ 0x4000;
-                _low & 0x3fff;
-                _high | 0x4000;
+            else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
+                this.code ^ 0x4000;
+                this.low & 0x3fff;
+                this.high | 0x4000;
             }
             else {
                 return true;
             }
 
-        _low << 1;
-        _high << 1;
-        _high | 1;
-        _code << 1;
-        // originally ReadBit0(_code)
-        getBits(_code);
-
+        this.low << 1;
+        this.high << 1;
+        this.high | 1;
+        this.code << 1;
     }
 
     read() {
@@ -160,7 +219,6 @@ class CDP2 { // Figure 150 (left side missing)
             }
             if (this.CODECType == 3) { // Arithmetic 
                 var probCxtTableEntryCount, numberSymbolBits, numberOccurCountBits, numberValueBits, minValue;
-                //var amc = new ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, probCxT???);
                 var bitReader = new JTBitReader(this.jtDataReader, 1);
                 probCxtTableEntryCount = bitReader.getBits(16);
                 numberSymbolBits = bitReader.getBits(6);
@@ -174,6 +232,15 @@ class CDP2 { // Figure 150 (left side missing)
                     this.probCxtEntries.push(bitReader.getBits(numberValueBits));
                 }
                 this.OOBValues = this.jtDataReader.getData32(0);
+                for (i = 1; i < this.probCxtEntries.length; i = i + 3) {            // speicher das 2.Value von Entries in cCount
+                    this.cCount.push(this.probCxtEntries[i]);
+                }
+                this.cCumCount[0] = 0;
+                this.cCumCount[1] = this.cCount[0];
+                for (i = 2; i < this.cCount.length; ++i) {                          // Summe der vorherigen Einträgen in cCount (cCumCount)
+                    this.cCumCount.push(this.cCumCount[i - 1] + this.cCount[i - 1]);
+                }
+                this.decodedData = this.ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, this.probCxtEntries, this.cCount, this.cCumCount, this.OOBValues);
 
             } else if (this.CODECType == 1) { // BitLengthdecode
                 this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
