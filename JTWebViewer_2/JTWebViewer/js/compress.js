@@ -83,18 +83,14 @@ class CDP2 { // Figure 150 (left side missing)
     }
 
     // Arithmetic decoder!!!
-    ArithmeticCodec2(valCount, ctLength, encodedData) {
+    ArithmeticCodec2(valCount, ctLength, encodedData, probEntries, cCount, cCumCount) {
        
-            // cSymbolsCurrCtx = probContx,
-              // End of the current code range
         var uBitBuff = encodedData, nBitBuff = ctLength, low = 0, high = 0xffff, rescaledCode = 0, code = 0,          // Present input code value, for decoding only
             iSym = 0,
             inx = 0;
             
                       // Start of the current code range
             
-            
-
         code = (uBitBuff >>> 16);
         uBitBuff <<= 16;
         nBitBuff -= 16;
@@ -105,6 +101,7 @@ class CDP2 { // Figure 150 (left side missing)
             
             rescaledCode = (((code - low) + 1) * valCount - 1) / ((high - low) + 1);
             rescaledCode = Math.round(rescaledCode);
+            this.lookupEntryByCumCount(rescaledCode);
 
             //probContx.lookUpEntryByCumCount(rescaledCode, cntxEntry);
             //if (cntxEntry == iSym != /*CntxEntryBase2::CEBEscape*/) {
@@ -118,6 +115,49 @@ class CDP2 { // Figure 150 (left side missing)
         }
         //this.flushDecoder();
         return true;
+    }
+
+    lookupEntryByCumCount(iCount, probEntries, cCount, cCumCount) {
+        var nEntries = probEntries.length()/3, seqSearchLen = 4, ii = 0;
+
+        // For short lists, do sequential search
+        if (nEntries <= (seqSearchLen * 2)) {
+            ii = 0;
+            while ((iCount >= (vEntries.value(ii)._cCumCount + vEntries.value(ii)._cCount)) && (ii < nEntries)) {
+                ii++;
+            }
+            if (ii >= nEntries) {
+                //assert(0 && "Bad probability table");
+            }
+            return _vEntries.valueP(ii);
+        }
+        // For long lists, do a short sequential searches through most likely
+        // elements, then do a binary search through the rest.
+        else {
+            for (ii = 0; ii < seqSearchLen; ii++) {
+                if (iCount < (vEntries.value(ii)._cCumCount + vEntries.value(ii)._cCount)) {
+                    return _vEntries.valueP(ii);
+                }
+            }
+            Int32 low = ii, high = nEntries - 1, mid;
+            while (1) {
+                if (high < low) {
+                    break;
+                }
+                mid = low + ((high - low) >> 1);
+                if (iCount < _vEntries.value(mid)._cCumCount) {
+                    high = mid - 1;
+                    continue;
+                }
+                if (iCount >= (vEntries.value(mid)._cCumCount + vEntries.value(mid)._cCount)) {
+                    low = mid + 1;
+                    continue;
+                }
+                return _vEntries.valueP(mid);
+            }
+            assert(0 && "Bad probability table");
+        }
+        return NULL;
     }
 
     //_removeSymbolFromStream(uLowCt, uHighCt, uScale) {
@@ -200,7 +240,6 @@ class CDP2 { // Figure 150 (left side missing)
             }
             if (this.CODECType == 3) { // Arithmetic 
                 var probCxtTableEntryCount, numberSymbolBits, numberOccurCountBits, numberValueBits, minValue;
-                this.decodedData = this.ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData);
                 var bitReader = new JTBitReader(this.jtDataReader, 1);
                 probCxtTableEntryCount = bitReader.getBits(16);
                 numberSymbolBits = bitReader.getBits(6);
@@ -222,7 +261,7 @@ class CDP2 { // Figure 150 (left side missing)
                 for (i = 2; i < this.cCount.length; ++i) {                      // Summe der vorherigen Einträgen in cCount (cCumCount)
                     this.cCumCount.push(this.cCumCount[i - 1] + this.cCount[i - 1]);
                 }
-
+                this.decodedData = this.ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, this.probCxtEntries, this.cCount, this.cCumCount);
 
 
 
