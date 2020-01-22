@@ -94,7 +94,7 @@ class CDP2 { // Figure 150 (left side missing)
             iSym = 0, mid;
         var currTotalCount = valCount; // REVISED from 0
 
-        code = (uBitBuff >>> 16);
+        this.code = (uBitBuff >>> 16);
         uBitBuff <<= 16;
         nBitBuff -= 16;
 
@@ -105,7 +105,7 @@ class CDP2 { // Figure 150 (left side missing)
 
         for (i = 0; i < valCount; ++i) {
 
-            rescaledCode = (((code - low) + 1) * valCount - 1) / ((high - low) + 1);
+            rescaledCode = (((this.code - this.low) + 1) * valCount - 1) / ((this.high - this.low) + 1);
             rescaledCode = Math.round(rescaledCode);
             this.lookupEntryByCumCount(rescaledCode, probEntries, cCount, cCumCount);
 
@@ -185,25 +185,39 @@ class CDP2 { // Figure 150 (left side missing)
             //First, the range is expanded to account for symbol removal
         uRange = (this.high - this.low) + 1;
         this.high = this.low + ((uRange * uHighCt) / uScale - 1);
-        this.low = this.low + ((uRange * uLowCt) / uScale - 1);
+        this.low = this.low + ((uRange * uLowCt) / uScale);
         // If most signif digits match, the bits will be shifted out
-        for (; ;)
-            if (~(this.high ^ this.low) >>> 15) { }
+        for (; ;) {
 
+            // If the most signif digits match, the bits will be shifted out.
+            if (~(this.high ^ this.low) >>> 15) { }
             else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
-                this.code ^ 0x4000;
-                this.low & 0x3fff;
-                this.high | 0x4000;
+                this.code ^= 0x4000;
+                this.low &= 0x3fff;
+                this.high |= 0x4000;
             }
+
+            // Else, if underflow is threatening, shift out the 2nd most signif digit.
+            //else if ((_low & 0x4000) && !(_high & 0x4000))
+            // If high=10xx and low=01xx
             else {
                 return true;
             }
+            //else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
+            //    this.code ^ 0x4000;
+            //    this.low & 0x3fff;
+            //    this.high | 0x4000;
+            //}
+            //else {
+            //    return true;
+            //}
 
-        this.low << 1;
-        this.high << 1;
-        this.high | 1;
-        this.code << 1;
-
+            this.low <<= 1;
+            this.high <<= 1;
+            this.high |= 1;
+            this.code <<= 1;
+            this.code;
+        }
 
 
 
