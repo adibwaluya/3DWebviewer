@@ -128,7 +128,7 @@ function int2float(expo, mant) {
 
 // Show file in Webbrowser
 function showFile() {
-    var i, fileHeader, filetoc, fileSegment, topoCompressedRepData, arithEx, compressPosition = 0;
+    var i, fileHeader, filetoc, fileSegment, topoCompressedRepData, arithEx, compressPosition = 0, vertexCoorArr;
     fileHeader = new jtHeader(streamReader);
     fileHeader.read();
     fileHeader.print();
@@ -142,23 +142,28 @@ function showFile() {
     getPosition();
     coordinates = new CDP2(streamReader);
     arithEx = new CDP2(streamReader);
+    vertexCoorArr = new vertexCoordinateArray(streamReader);
     for (i = 0; i < lodPosition.length; ++i) {
         streamReader.position = lodPosition[i];
         fileSegment.read();
         fileSegment.print();
-        compressPosition = streamReader.position + 256;
+        compressPosition = streamReader.position + 150;
         
         while (streamReader.position < compressPosition)
         {
             topoCompressedRepData.read();           
             topoCompressedRepData.print();
         }
-       streamReader.position += 40;
-       
+        //streamReader.position += 40;
+        vertexCoorArr.read();
+        for (i = 1; i <= vertexCoorArr.numOfComponents; ++i) {
+            topoCompressedRepData.read();
+            topoCompressedRepData.print();
+        }
         
         compressPosition = 0;
     }
-    streamReader.position += 40;
+    
     //coordinates.read();
     //coordinates.print();
     //arithEx.read();
