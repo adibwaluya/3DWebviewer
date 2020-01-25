@@ -34,6 +34,10 @@ class CDP2 { // Figure 150 (left side missing)
         // Constructors for Codec2
         this.iCurCodeText = 0;
         this.pcCodeTextLen = 0;
+        // Vertex Coordinate Array
+        this.numberOfComponents;
+
+
     }
 
     decodeBitlength(valCount, ctLength, encodedData) {
@@ -241,7 +245,13 @@ class CDP2 { // Figure 150 (left side missing)
     read() {
         var i, vals2read = 0, partialData1 = [], partialData2 = [], partialData3 = [], totalData1 = [], totalData2 = [];
         this.valueCount = this.jtDataReader.getData32(0);
+        while (this.valueCount == 0) {
+            this.valueCount = this.jtDataReader.getData32(0);
+            
+        }
+        
         this.CODECType = this.jtDataReader.getData8();
+        
         if (this.CODECType < 4) {
             this.codeTextLength = this.jtDataReader.getData32(0)/*.toString(16)*/;
             //this.originalValues = this.jtDataReader.getData32(0).toString(16);

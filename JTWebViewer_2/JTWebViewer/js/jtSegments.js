@@ -64,7 +64,9 @@
         this.segmentlength = this.jtDataReader.getData32(0).toString(16);
 
         // revised/added codes starting here (02.01.2020)
-        this.elementLength = this.jtDataReader.getData32(0).toString(16);
+        //this.elementLength = this.jtDataReader.getData32(0).toString(16);
+        this.elementLength = this.jtDataReader.getData16(1);
+        this.elementLength += this.jtDataReader.getData16(1);
 
         // Element Header
         for (i = 0; i < 16; ++i) {
