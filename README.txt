@@ -1,6 +1,6 @@
 ﻿Ort:
 1. Um das Programm zu öffnen, beim Visual Studio Code den Ordner JTViewer öffnen
-2. Um das Ergebnis vom Progamm im Webbrowser zu schauen, befindet sich die Datei index.html in team2\JTViewer (mit gewuenschten
+2. Um das Ergebnis vom Progamm im Webbrowser zu schauen, befindet sich die Datei index.html in team2\JTWebViewer_2 (mit gewuenschten
    Webbrowser geoeffnet)
 3. JT-Dateien befinden sich in team2\JT_Files
 
