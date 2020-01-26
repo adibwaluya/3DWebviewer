@@ -86,6 +86,7 @@
     <Content Include="js\main.js" />
     <Content Include="css\default.css" />
     <Content Include="js\probContext2.js" />
+    <Content Include="js\three.js" />
     <Content Include="three\OrbitControls.js" />
     <Content Include="three\three.js" />
     <Content Include="three\three.module.js" />

@@ -1,6 +1,7 @@
-var coordinateArrays = [5,6,7,8];
-var showCoordinates;
-var realCoordinates = [];
+x_Points = [20, 20, 0, 0];
+y_Points = [20, 20, 0, 0];
+z_Points = [0, 20, 20, 0]; 
+    
 // Compressed Data Packet mk.2
 class CDP2 { // Figure 150 (left side missing)
     constructor(jtDataReader, predictorType) {
