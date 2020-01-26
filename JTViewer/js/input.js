@@ -2,7 +2,6 @@ class JTDataReader {
     constructor() {
         this.jtFile = null;     // VORHER: new FileReader();
         this.position = 0;
-        /*this.jtFile.readAsArrayBuffer(filename); */     /*Revised 02.01.2020*/
         this.isdone = true;
         this.bitsLeft = 0;
         /*this.jtFile.addEventListener('loadend', this.initArray.bind(this));*/   /*Revised 02.01.2020*/

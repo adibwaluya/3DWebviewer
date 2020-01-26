@@ -1,6 +1,6 @@
-var x_Points = [200, 200, 200, 0, 0, 0, 0, 200];
-var y_Points = [0, 0, 200, 0, 200, 0, 200, 200];
-var z_Points = [10, 0, 0, 0, 0, 10, 10, 10];
+var x_Points = [20, 20, 20, 0, 0, 0, 0, 20];
+var y_Points = [0, 0, 20, 0, 20, 0, 20, 20];
+var z_Points = [1, 0, 0, 0, 0, 1, 1, 1];
     
 // Compressed Data Packet mk.2
 class CDP2 { // Figure 150 (left side missing)
@@ -73,10 +73,7 @@ class CDP2 { // Figure 150 (left side missing)
                 this.ovValues = [];
 
             }
-            //else if (encodedData.length > 1) {
-            //    localEncodes.push(encodedData.length);
-            //// not implemented yet
-            //}
+            
             localEncodes = [];
             ++i;
         }
@@ -105,11 +102,6 @@ class CDP2 { // Figure 150 (left side missing)
         uBitBuff <<= 16;
         nBitBuff -= 16;
 
-        //for (i = 0; i < cCumCount.length; i++) {
-        //    currTotalCount += cCumCount[i];
-
-        //}
-
         for (i = 0; i < valCount; ++i) {
 
             rescaledCode = (((this.code - this.low) + 1) * valCount - 1) / ((this.high - this.low) + 1);
@@ -127,7 +119,7 @@ class CDP2 { // Figure 150 (left side missing)
             this.removeSymbolFromStream(this.currcCount, (this.currcCumCount + this.currcCount), currTotalCount);
            
         }
-        //this.flushDecoder();
+        
         return true;
     }
 
@@ -214,15 +206,6 @@ class CDP2 { // Figure 150 (left side missing)
                     return true;
                 }
             }
-            //else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
-            //    this.code ^ 0x4000;
-            //    this.low & 0x3fff;
-            //    this.high | 0x4000;
-            //}
-            //else {
-            //    return true;
-            //}
-
            
             this.low <<= 1;
             this.low &= 65535;
@@ -236,24 +219,8 @@ class CDP2 { // Figure 150 (left side missing)
             this.code;
         }
 
-
-
-
     }
-
-
-
-    //getNextCodeText(uCodeText, nBits) {
-
-    //}
-
-
-
-
-
-
-    
-    
+ 
 
     read() {
         var i, vals2read = 0, partialData1 = [], partialData2 = [], partialData3 = [], totalData1 = [], totalData2 = [];
@@ -266,29 +233,9 @@ class CDP2 { // Figure 150 (left side missing)
         this.CODECType = this.jtDataReader.getData8();
         
         if (this.CODECType < 4) {
-            this.codeTextLength = this.jtDataReader.getData32(0)/*.toString(16)*/;
-            //this.originalValues = this.jtDataReader.getData32(0).toString(16);
+            this.codeTextLength = this.jtDataReader.getData32(0);
             vals2read = Math.ceil(this.codeTextLength / 32.);
-            //if (this.codeTextLength <= 20) {
-            //    for (i = 0; i < vals2read; ++i) {
-            //        this.encodedData.push(this.jtDataReader.getData32(0));
-            //    }
-            //}
-            //else if (20 < this.codeTextLength && this.codeTextLength <= 40) {
-            //    for (i = 0; i < vals2read; ++i) {
-            //        this.encodedData.push(this.jtDataReader.getData64(0));
-            //    }
-            //}
-            //else if (40 < this.codeTextLength && this.codeTextLength <= 80) {
-            //    for (i = 0; i < vals2read; ++i) {
-            //        this.encodedData.push(this.jtDataReader.getData32(0));
-
-            //        //partialData3.join(partialData2);
-
-
-            //        //this.encodedData.push(this.jtDataReader.getData32(0));
-            //    }
-            //}
+            
             for (i = 0; i < vals2read; ++i) {
                 this.encodedData.push(this.jtDataReader.getData32(0));
             }
@@ -332,13 +279,11 @@ class CDP2 { // Figure 150 (left side missing)
         } else {
             //Anything else but none/bitLength or Arithmitic: not yet implemented
         }
-        //this.originalValue = this.ovValues
 
         showCoordinates = coordinateArrays.push(this.originalValue);
         if (showCoordinates > 9) {
             realCoordinates.push(this.originalValue);
         }
-
         
     }
     print() {
@@ -348,12 +293,7 @@ class CDP2 { // Figure 150 (left side missing)
             this.originalData = this.values[i].toString(16);
         }
         bodyAppend("p", "CDP Package: valueCount: " + this.valueCount + "; CODECType: " + this.CODECType + "; codeTextLength: " + this.codeTextLength + "; Original values: " + this.originalData);
-        //for (i = 0; i < this.arrayExample.length; ++i) {
-        //    //this.originalValue = this.arrayExample[i];
-        //}
         bodyAppend("p", "outVals: " + this.originalValue);
-        //bodyAppend("p", "decoded: " + this.decodedData);
-        //bodyAppend("p", "Max Symbol: " + this.iMaxSymbol);
         
     }
 };
