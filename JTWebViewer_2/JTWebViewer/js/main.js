@@ -154,12 +154,19 @@ function showFile() {
             topoCompressedRepData.read();           
             topoCompressedRepData.print();
         }
-        //streamReader.position += 40;
+        streamReader.position = 1854;
         vertexCoorArr.read();
-        for (i = 1; i <= vertexCoorArr.numOfComponents; ++i) {
-            topoCompressedRepData.read();
-            topoCompressedRepData.print();
-        }
+        var i = 0;
+        do {
+            i += 1;
+            coordinates.read();
+           coordinates.print();
+        } while (i < 6);
+
+        //for (i = 0; i < vertexCoorArr.numOfComponents*2; ++i) {
+        //     coordinates.read();
+        //     coordinates.print();
+        //}
         
         compressPosition = 0;
     }
