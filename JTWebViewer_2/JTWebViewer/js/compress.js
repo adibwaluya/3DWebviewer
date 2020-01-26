@@ -1,4 +1,5 @@
-﻿
+﻿var coordinateArrays = [];
+var coordinates;
 // Compressed Data Packet mk.2
 class CDP2 { // Figure 150 (left side missing)
     constructor(jtDataReader, predictorType) {
@@ -331,7 +332,7 @@ class CDP2 { // Figure 150 (left side missing)
         }
         //this.originalValue = this.ovValues
 
-
+        coordinates = coordinateArrays.push(this.originalValue);
 
         
     }
