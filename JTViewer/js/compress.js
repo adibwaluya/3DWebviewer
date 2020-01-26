@@ -1,6 +1,6 @@
-x_Points = [20, 20, 0, 0];
-y_Points = [20, 20, 0, 0];
-z_Points = [0, 20, 20, 0]; 
+var x_Points = [200, 200, 200, 0, 0, 0, 0, 200];
+var y_Points = [0, 0, 200, 0, 200, 0, 200, 200];
+var z_Points = [10, 0, 0, 0, 0, 10, 10, 10];
     
 // Compressed Data Packet mk.2
 class CDP2 { // Figure 150 (left side missing)

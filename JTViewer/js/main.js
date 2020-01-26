@@ -7,6 +7,7 @@ var i, x,
     segmentlengths = [],
     segmentAttributes = [],
     lodPosition = [];
+    //elementlenght = [];
 
 // To analyze the positions of determined segment type (type 6 = Shape) in the data 
 // Redirect only to position/segment offset that has type 6 (Shape)
@@ -127,7 +128,7 @@ function int2float(expo, mant) {
 
 // Show file in Webbrowser
 function showFile() {
-    var i, fileHeader, filetoc, fileSegment, topoCompressedRepData;
+    var i, fileHeader, filetoc, fileSegment, topoCompressedRepData, arithEx, compressPosition = 0, vertexCoorArr;
     fileHeader = new jtHeader(streamReader);
     fileHeader.read();
     fileHeader.print();
@@ -142,8 +143,8 @@ function showFile() {
     coordinates = new CDP2(streamReader);
     arithEx = new CDP2(streamReader);
     vertexCoorArr = new vertexCoordinateArray(streamReader);
-    for (i = 0; i < lodPosition.length; ++i) {
-        streamReader.position = lodPosition[i];
+    for (var ii = 0; ii < lodPosition.length; ++ii) {
+        streamReader.position = lodPosition[ii];
         fileSegment.read();
         fileSegment.print();
         compressPosition = streamReader.position + 150;
@@ -160,7 +161,8 @@ function showFile() {
             i += 1;
             coordinates.read();
            coordinates.print();
-        } while (i < 6);
+        } 
+      while (i < 7);
 
         //for (i = 0; i < vertexCoorArr.numOfComponents*2; ++i) {
         //     coordinates.read();
@@ -169,6 +171,13 @@ function showFile() {
         
         compressPosition = 0;
     }
+    
+    //coordinates.read();
+    //coordinates.print();
+    //arithEx.read();
+    //arithEx.print();
+    
+
 }
 
 function bodyAppend(tagName, innerHTML) {
