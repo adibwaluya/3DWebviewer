@@ -79,6 +79,7 @@ class CDP2 { // Figure 150 (left side missing)
             localEncodes = [];
             ++i;
         }
+
     }
 
     nBitsinSymbol(iSym) {
@@ -127,6 +128,7 @@ class CDP2 { // Figure 150 (left side missing)
            
         }
         //this.flushDecoder();
+        this.ovValues = [];
         return true;
     }
 
@@ -256,88 +258,96 @@ class CDP2 { // Figure 150 (left side missing)
 
     read() {
         var i, vals2read = 0, partialData1 = [], partialData2 = [], partialData3 = [], totalData1 = [], totalData2 = [];
-        this.valueCount = this.jtDataReader.getData32(0);
-        while (this.valueCount == 0) {
+            
             this.valueCount = this.jtDataReader.getData32(0);
-            
-        }
         
-        this.CODECType = this.jtDataReader.getData8();
+       
+            while (this.valueCount == 0) {
+                this.valueCount = this.jtDataReader.getData32(0);
+
+            }
+
+            this.CODECType = this.jtDataReader.getData8();
+            if (this.CODECType < 4) {
+                this.codeTextLength = this.jtDataReader.getData32(0)/*.toString(16)*/;
+                //this.originalValues = this.jtDataReader.getData32(0).toString(16);
+                vals2read = Math.ceil(this.codeTextLength / 32.);
+                //if (this.codeTextLength <= 20) {
+                //    for (i = 0; i < vals2read; ++i) {
+                //        this.encodedData.push(this.jtDataReader.getData32(0));
+                //    }
+                //}
+                //else if (20 < this.codeTextLength && this.codeTextLength <= 40) {
+                //    for (i = 0; i < vals2read; ++i) {
+                //        this.encodedData.push(this.jtDataReader.getData64(0));
+                //    }
+                //}
+                //else if (40 < this.codeTextLength && this.codeTextLength <= 80) {
+                //    for (i = 0; i < vals2read; ++i) {
+                //        this.encodedData.push(this.jtDataReader.getData32(0));
+
+                //        //partialData3.join(partialData2);
+
+
+                //        //this.encodedData.push(this.jtDataReader.getData32(0));
+                //    }
+                //}
+                for (i = 0; i < vals2read; ++i) {
+                    this.encodedData.push(this.jtDataReader.getData32(0));
+                }
+
+                if (this.CODECType == 3) { // Arithmetic 
+                    var probCxtTableEntryCount, numberSymbolBits, numberOccurCountBits, numberValueBits, minValue;
+                    var bitReader = new JTBitReader(this.jtDataReader, 1);
+                    probCxtTableEntryCount = bitReader.getBits(16);
+                    numberSymbolBits = bitReader.getBits(6);
+                    numberOccurCountBits = bitReader.getBits(6);
+                    numberValueBits = bitReader.getBits(6);
+                    minValue = bitReader.getBits(32);
+                    for (var i = 0; i < probCxtTableEntryCount; i++) {
+                        this.probCxtEntries.push(bitReader.getBits(numberSymbolBits));
+                        this.probCxtEntries.push(bitReader.getBits(numberOccurCountBits));
+                        this.probCxtEntries.push(bitReader.getBits(numberValueBits));
+                    }
+                    this.OOBValues = this.jtDataReader.getData32(0);
+
+                    for (i = 1; i < this.probCxtEntries.length; i = i + 3) {            // speicher das 2.Value von Entries in cCount
+                        this.cCount.push(this.probCxtEntries[i]);
+                    }
+                    this.cCumCount[0] = 0;
+                    this.cCumCount[1] = this.cCount[0];
+                    for (i = 2; i < this.cCount.length; ++i) {                      // Summe der vorherigen Einträgen in cCount (cCumCount)
+                        this.cCumCount.push(this.cCumCount[i - 1] + this.cCount[i - 1]);
+                    }
+                    this.decodedData = this.ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, this.probCxtEntries, this.cCount, this.cCumCount, this.OOBValues);
+                    if (this.OOBValues != 0) {
+                        
+                        this.jtDataReader.changePositionSub(4);
+                        //this.CODECType = this.jtDataReader.getData8();
+                        
+                    }
+                    
+
+
+                } else if (this.CODECType == 1) { // BitLength
+                    this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
+                } else if (this.CODECType == 0) { // NULL decoder
+                    for (i = 0; i < this.valueCount; ++i) {
+                        this.decodedData.push(this.encodedData[i]);
+                    }
+                }
+
+                this.encodedData = [];
+            } else {
+                //Anything else but none/bitLength or Arithmitic: not yet implemented
+            }
+            //this.originalValue = this.ovValues
+
+            showCoordinates = coordinateArrays.push(this.originalValue);
+            if (showCoordinates > 9) {
+                realCoordinates.push(this.originalValue);
+            }
         
-        if (this.CODECType < 4) {
-            this.codeTextLength = this.jtDataReader.getData32(0)/*.toString(16)*/;
-            //this.originalValues = this.jtDataReader.getData32(0).toString(16);
-            vals2read = Math.ceil(this.codeTextLength / 32.);
-            //if (this.codeTextLength <= 20) {
-            //    for (i = 0; i < vals2read; ++i) {
-            //        this.encodedData.push(this.jtDataReader.getData32(0));
-            //    }
-            //}
-            //else if (20 < this.codeTextLength && this.codeTextLength <= 40) {
-            //    for (i = 0; i < vals2read; ++i) {
-            //        this.encodedData.push(this.jtDataReader.getData64(0));
-            //    }
-            //}
-            //else if (40 < this.codeTextLength && this.codeTextLength <= 80) {
-            //    for (i = 0; i < vals2read; ++i) {
-            //        this.encodedData.push(this.jtDataReader.getData32(0));
-
-            //        //partialData3.join(partialData2);
-
-
-            //        //this.encodedData.push(this.jtDataReader.getData32(0));
-            //    }
-            //}
-            for (i = 0; i < vals2read; ++i) {
-                this.encodedData.push(this.jtDataReader.getData32(0));
-            }
-            if (this.CODECType == 3) { // Arithmetic 
-                var probCxtTableEntryCount, numberSymbolBits, numberOccurCountBits, numberValueBits, minValue;
-                var bitReader = new JTBitReader(this.jtDataReader, 1);
-                probCxtTableEntryCount = bitReader.getBits(16);
-                numberSymbolBits = bitReader.getBits(6);
-                numberOccurCountBits = bitReader.getBits(6);
-                numberValueBits = bitReader.getBits(6);
-                minValue = bitReader.getBits(32);
-                for (var i = 0; i < probCxtTableEntryCount; i++)
-                {
-                    this.probCxtEntries.push(bitReader.getBits(numberSymbolBits));
-                    this.probCxtEntries.push(bitReader.getBits(numberOccurCountBits));
-                    this.probCxtEntries.push(bitReader.getBits(numberValueBits));
-                }
-                this.OOBValues = this.jtDataReader.getData32(0);
-                for (i = 1; i < this.probCxtEntries.length; i = i + 3) {            // speicher das 2.Value von Entries in cCount
-                    this.cCount.push(this.probCxtEntries[i]);
-                }
-                this.cCumCount[0] = 0;
-                this.cCumCount[1] = this.cCount[0];
-                for (i = 2; i < this.cCount.length; ++i) {                      // Summe der vorherigen Einträgen in cCount (cCumCount)
-                    this.cCumCount.push(this.cCumCount[i - 1] + this.cCount[i - 1]);
-                }
-                this.decodedData = this.ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, this.probCxtEntries, this.cCount, this.cCumCount, this.OOBValues);
-
-
-
-
-            } else if (this.CODECType == 1) { // BitLength
-                this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
-            } else if (this.CODECType == 0) { // NULL decoder
-                for (i = 0; i < this.valueCount; ++i) {
-                    this.decodedData.push(this.encodedData[i]);
-                }
-            }
-            
-            this.encodedData = [];
-        } else {
-            //Anything else but none/bitLength or Arithmitic: not yet implemented
-        }
-        //this.originalValue = this.ovValues
-
-        showCoordinates = coordinateArrays.push(this.originalValue);
-        if (showCoordinates > 9) {
-            realCoordinates.push(this.originalValue);
-        }
-
         
     }
     print() {

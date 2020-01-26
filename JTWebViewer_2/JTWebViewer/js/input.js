@@ -84,6 +84,10 @@
     getData96(endi) {
         return this.universalGetData(12, endi);
     }
+    changePositionSub(change) {
+        this.position -= change;
+    }
+
 }
 
 // Read certain amount of Bits of Data
