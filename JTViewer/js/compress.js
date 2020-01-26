@@ -1,4 +1,4 @@
-var coordinateArrays = [5,6,7,8];
+var coordinateArrays = [];
 var showCoordinates;
 var realCoordinates = [];
 // Compressed Data Packet mk.2
@@ -36,29 +36,30 @@ class CDP2 { // Figure 150 (left side missing)
         // Constructors for Codec2
         this.iCurCodeText = 0;
         this.pcCodeTextLen = 0;
+        // Vertex Coordinate Array
+        this.numberOfComponents;
+
+
     }
 
     decodeBitlength(valCount, ctLength, encodedData) {
-        var cBitsInMinSymbol, cBitsInMaxSymbol, iMaxSymbol, iMinSymbol, cNumCurBits = 0, nBits = 0, nTotalBits = 0, nSyms = 0, i = 0, localEncodes = [], cdp, arrayValues = [];
-        var dataReader = new JTDataReader(); 
-
-        while(i < encodedData.length){
-
+        var cBitsInMinSymbol, cBitsInMaxSymbol, iMaxSymbol, iMinSymbol, cNumCurBits = 0, nBits = 0, nTotalBits = 0, nSyms = 0, i = 0, localEncodes = [], cdp, arrayExample = [];
+        var dataReader = new JTDataReader();
+        //HUGE REVISION
+        while (i < encodedData.length) {
             this.values.push(this.encodedData);
             dataReader.initFromArray(encodedData);
-            var bitReader = new JTBitReader(dataReader, 0);                 // To read the bits of the specific data, bitReader will be implemented
-            cdp = new CDP2(dataReader);                                     // will be required to implement a methode from class CDP2
+            var bitReader = new JTBitReader(dataReader, 0);
+            cdp = new CDP2(dataReader);
             var isVariable = bitReader.getBits(1);
-
             if (isVariable == 0) {
                 // TODO: NOCHMAL ANGUCKEN!
-                cBitsInMinSymbol = bitReader.getBits(6);                    // the minimum value in unsigned bits
-                cBitsInMaxSymbol = bitReader.getBits(6);                    // the maximum value in unsigned bits
-                iMinSymbol = bitReader.getBits(cBitsInMinSymbol);           // minimum value will be converted from unsigned to signed bits
-                iMaxSymbol = bitReader.getBits(cBitsInMaxSymbol);           
-                cNumCurBits = cdp.nBitsinSymbol(iMaxSymbol - iMinSymbol);   // the bits will be converted to symbol (number)
+                cBitsInMinSymbol = bitReader.getBits(6);
+                cBitsInMaxSymbol = bitReader.getBits(6);
+                iMinSymbol = bitReader.getBits(cBitsInMinSymbol);
+                iMaxSymbol = bitReader.getBits(cBitsInMaxSymbol);
+                cNumCurBits = cdp.nBitsinSymbol(iMaxSymbol - iMinSymbol);
 
-                // While loop is implemented to show the decoded values
                 while (nBits < nTotalBits || nSyms < this.valueCount) {
                     this.iSymbol = 0;
                     this.iSymbol = bitReader.getBits(cNumCurBits);
@@ -66,27 +67,27 @@ class CDP2 { // Figure 150 (left side missing)
                     this.ovValues.push(this.iSymbol);
                     ++nSyms;
                 }
-                arrayValues.push(this.ovValues);
-                this.originalValue = arrayValues.join(" ");
+                arrayExample.push(this.ovValues);
+                this.originalValue = arrayExample.join(" ");
                 this.ovValues = [];
-            }
 
-            else{
-            //// not implemented yet
             }
+            //else if (encodedData.length > 1) {
+            //    localEncodes.push(encodedData.length);
+            //// not implemented yet
+            //}
             localEncodes = [];
             ++i;
         }
     }
 
-    // Function to convert number of bits into symbol
     nBitsinSymbol(iSym) {
         var i = 0, nBits = 0, cMaxCodeSpan = 0;
         if (iSym == 0) { return 0; }
         else {
             cMaxCodeSpan = Math.abs(iSym);
-            for (i = 1, nBits = 0; i <= cMaxCodeSpan && nBits < 31; i+=i, ++nBits) {
-                // Empty, only return nBits 
+            for (i = 1, nBits = 0; i <= cMaxCodeSpan && nBits < 31; i += i, ++nBits) {
+
             }
             return nBits;
             nBits = 0;
@@ -95,20 +96,21 @@ class CDP2 { // Figure 150 (left side missing)
 
     // Arithmetic decoder!!!
     ArithmeticCodec2(valCount, ctLength, encodedData, probEntries, cCount, cCumCount, vOOBValues) {
-        var uBitBuff = encodedData,
-            nBitBuff = ctLength, 
-            low = 0,           // Start of the current code range
-            high = 0xffff,     // End of the current code range
-            rescaledCode = 0,
-            code = 0,          // Present input code value, for decoding only
-            iSym = 0,
-            currTotalCount = valCount;
+        var uBitBuff = encodedData, nBitBuff = ctLength, low = 0, high = 0xffff, rescaledCode = 0, code = 0,          // Present input code value, for decoding only
+            iSym = 0, mid;
+        var currTotalCount = valCount; // REVISED from 0
 
         this.code = (uBitBuff >>> 16);
         uBitBuff <<= 16;
         nBitBuff -= 16;
-        
+
+        //for (i = 0; i < cCumCount.length; i++) {
+        //    currTotalCount += cCumCount[i];
+
+        //}
+
         for (i = 0; i < valCount; ++i) {
+
             rescaledCode = (((this.code - this.low) + 1) * valCount - 1) / ((this.high - this.low) + 1);
             rescaledCode = Math.round(rescaledCode);
             this.lookupEntryByCumCount(rescaledCode, probEntries, cCount, cCumCount);
@@ -189,7 +191,7 @@ class CDP2 { // Figure 150 (left side missing)
             //First, the range is expanded to account for symbol removal
         uRange = (this.high - this.low) + 1;
         this.high = this.low + ((uRange * uHighCt) / uScale - 1);
-        this.low = this.low + ((uRange * uLowCt) / uScale - 1);
+        this.low = this.low + ((uRange * uLowCt) / uScale);
         // If most signif digits match, the bits will be shifted out
         for (; ;) {
             var x = this.high - this.low;
@@ -232,15 +234,60 @@ class CDP2 { // Figure 150 (left side missing)
             this.code &= 65535;
             this.code;
         }
+
+
+
+
     }
 
+
+
+    //getNextCodeText(uCodeText, nBits) {
+
+    //}
+
+
+
+
+
+
+    
+    
+
     read() {
-        var i, vals2read = 0;
+        var i, vals2read = 0, partialData1 = [], partialData2 = [], partialData3 = [], totalData1 = [], totalData2 = [];
         this.valueCount = this.jtDataReader.getData32(0);
+        while (this.valueCount == 0) {
+            this.valueCount = this.jtDataReader.getData32(0);
+            
+        }
+        
         this.CODECType = this.jtDataReader.getData8();
+        
         if (this.CODECType < 4) {
-            this.codeTextLength = this.jtDataReader.getData32(0).toString(16);
+            this.codeTextLength = this.jtDataReader.getData32(0)/*.toString(16)*/;
+            //this.originalValues = this.jtDataReader.getData32(0).toString(16);
             vals2read = Math.ceil(this.codeTextLength / 32.);
+            //if (this.codeTextLength <= 20) {
+            //    for (i = 0; i < vals2read; ++i) {
+            //        this.encodedData.push(this.jtDataReader.getData32(0));
+            //    }
+            //}
+            //else if (20 < this.codeTextLength && this.codeTextLength <= 40) {
+            //    for (i = 0; i < vals2read; ++i) {
+            //        this.encodedData.push(this.jtDataReader.getData64(0));
+            //    }
+            //}
+            //else if (40 < this.codeTextLength && this.codeTextLength <= 80) {
+            //    for (i = 0; i < vals2read; ++i) {
+            //        this.encodedData.push(this.jtDataReader.getData32(0));
+
+            //        //partialData3.join(partialData2);
+
+
+            //        //this.encodedData.push(this.jtDataReader.getData32(0));
+            //    }
+            //}
             for (i = 0; i < vals2read; ++i) {
                 this.encodedData.push(this.jtDataReader.getData32(0));
             }
@@ -264,28 +311,33 @@ class CDP2 { // Figure 150 (left side missing)
                 }
                 this.cCumCount[0] = 0;
                 this.cCumCount[1] = this.cCount[0];
-                for (i = 2; i < this.cCount.length; ++i) {                          // Summe der vorherigen Einträgen in cCount (cCumCount)
+                for (i = 2; i < this.cCount.length; ++i) {                      // Summe der vorherigen Einträgen in cCount (cCumCount)
                     this.cCumCount.push(this.cCumCount[i - 1] + this.cCount[i - 1]);
                 }
                 this.decodedData = this.ArithmeticCodec2(this.valueCount, this.codeTextLength, this.encodedData, this.probCxtEntries, this.cCount, this.cCumCount, this.OOBValues);
 
-            } else if (this.CODECType == 1) { // BitLengthdecode
+
+
+
+            } else if (this.CODECType == 1) { // BitLength
                 this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
             } else if (this.CODECType == 0) { // NULL decoder
                 for (i = 0; i < this.valueCount; ++i) {
                     this.decodedData.push(this.encodedData[i]);
                 }
             }
+            
             this.encodedData = [];
-
         } else {
             //Anything else but none/bitLength or Arithmitic: not yet implemented
         }
+        //this.originalValue = this.ovValues
 
         showCoordinates = coordinateArrays.push(this.originalValue);
         if (showCoordinates > 9) {
             realCoordinates.push(this.originalValue);
         }
+
         
     }
     print() {
@@ -295,7 +347,13 @@ class CDP2 { // Figure 150 (left side missing)
             this.originalData = this.values[i].toString(16);
         }
         bodyAppend("p", "CDP Package: valueCount: " + this.valueCount + "; CODECType: " + this.CODECType + "; codeTextLength: " + this.codeTextLength + "; Original values: " + this.originalData);
-        bodyAppend("p", "outVals: " + this.originalValue);        
+        //for (i = 0; i < this.arrayExample.length; ++i) {
+        //    //this.originalValue = this.arrayExample[i];
+        //}
+        bodyAppend("p", "outVals: " + this.originalValue);
+        //bodyAppend("p", "decoded: " + this.decodedData);
+        //bodyAppend("p", "Max Symbol: " + this.iMaxSymbol);
+        
     }
 };
 
