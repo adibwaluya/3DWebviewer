@@ -12,7 +12,4 @@ a. Google Chrome (strg + shift + j) bei Sources, in der linken Seite die Datei m
 b. Mozilla Firefox (strg + shift + k) bei Debugger.
 
 2. Die Taste "Datei Auswaehlen" wird verwendet, um die JT-Datei vom Ordner zu finden, und mit der Taste Load wird die 
-   JT-Datei (in Form von Hexadezimalzahl) unter der GUI geladen.
- 
-3. Die Datei wird bis zu den LOD Segmenten ausgelesen. Leider fehlen noch die Dekodierungsverfahren. Einer ist schon implentiert, 
-   aber ist noch nicht ganz lauffähig.
+   JT-Datei  in das GUI geladen.
