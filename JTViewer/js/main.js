@@ -139,17 +139,36 @@ function showFile() {
     fileSegment = new jtSegments(streamReader);
     topoCompressedRepData = new CDP2(streamReader);
     getPosition();
-    exponent = new CDP2(streamReader);
+    coordinates = new CDP2(streamReader);
+    arithEx = new CDP2(streamReader);
+    vertexCoorArr = new vertexCoordinateArray(streamReader);
     for (i = 0; i < lodPosition.length; ++i) {
         streamReader.position = lodPosition[i];
         fileSegment.read();
-        topoCompressedRepData.read();
         fileSegment.print();
-        topoCompressedRepData.print();
+        compressPosition = streamReader.position + 150;
+        
+        while (streamReader.position < compressPosition)
+        {
+            topoCompressedRepData.read();           
+            topoCompressedRepData.print();
+        }
+        streamReader.position = 1854;
+        vertexCoorArr.read();
+        var i = 0;
+        do {
+            i += 1;
+            coordinates.read();
+           coordinates.print();
+        } while (i < 6);
+
+        //for (i = 0; i < vertexCoorArr.numOfComponents*2; ++i) {
+        //     coordinates.read();
+        //     coordinates.print();
+        //}
+        
+        compressPosition = 0;
     }
-    streamReader.position = 1910;
-    exponent.read();
-    exponent.print();
 }
 
 function bodyAppend(tagName, innerHTML) {

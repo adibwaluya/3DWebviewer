@@ -1,4 +1,4 @@
-var coordinateArrays = [];
+var coordinateArrays = [5,6,7,8];
 var showCoordinates;
 var realCoordinates = [];
 // Compressed Data Packet mk.2
