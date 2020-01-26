@@ -1,5 +1,6 @@
 ﻿var coordinateArrays = [];
 var showCoordinates;
+var realCoordinates = [];
 // Compressed Data Packet mk.2
 class CDP2 { // Figure 150 (left side missing)
     constructor(jtDataReader, predictorType) {
@@ -333,6 +334,9 @@ class CDP2 { // Figure 150 (left side missing)
         //this.originalValue = this.ovValues
 
         showCoordinates = coordinateArrays.push(this.originalValue);
+        if (showCoordinates > 9) {
+            realCoordinates.push(this.originalValue);
+        }
 
         
     }
