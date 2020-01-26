@@ -192,20 +192,24 @@ class CDP2 { // Figure 150 (left side missing)
         this.low = this.low + ((uRange * uLowCt) / uScale);
         // If most signif digits match, the bits will be shifted out
         for (; ;) {
-
+            var x = this.high - this.low;
+            var y = x >>> 15;
             // If the most signif digits match, the bits will be shifted out.
-            if (~(this.high ^ this.low) >>> 15) { }
-            else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
-                this.code ^= 0x4000;
-                this.low &= 0x3fff;
-                this.high |= 0x4000;
-            }
+            if (y == 1)
+            { 
+            
+                if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
+                    this.code ^= 0x4000;
+                    this.low &= 0x3fff;
+                    this.high |= 0x4000;
+                }
 
-            // Else, if underflow is threatening, shift out the 2nd most signif digit.
-            //else if ((_low & 0x4000) && !(_high & 0x4000))
-            // If high=10xx and low=01xx
-            else {
-                return true;
+                // Else, if underflow is threatening, shift out the 2nd most signif digit.
+                //else if ((_low & 0x4000) && !(_high & 0x4000))
+                // If high=10xx and low=01xx
+                else {
+                    return true;
+                }
             }
             //else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
             //    this.code ^ 0x4000;
@@ -216,10 +220,16 @@ class CDP2 { // Figure 150 (left side missing)
             //    return true;
             //}
 
+           
             this.low <<= 1;
+            this.low &= 65535;
+
             this.high <<= 1;
+            this.high &= 65535; 
             this.high |= 1;
+           
             this.code <<= 1;
+            this.code &= 65535;
             this.code;
         }
 
