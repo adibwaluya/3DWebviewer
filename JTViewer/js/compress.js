@@ -1,4 +1,6 @@
-
+var coordinateArrays = [];
+var showCoordinates;
+var realCoordinates = [];
 // Compressed Data Packet mk.2
 class CDP2 { // Figure 150 (left side missing)
     constructor(jtDataReader, predictorType) {
@@ -102,12 +104,12 @@ class CDP2 { // Figure 150 (left side missing)
             iSym = 0,
             currTotalCount = valCount;
 
-        code = (uBitBuff >>> 16);
+        this.code = (uBitBuff >>> 16);
         uBitBuff <<= 16;
         nBitBuff -= 16;
         
         for (i = 0; i < valCount; ++i) {
-            rescaledCode = (((code - low) + 1) * valCount - 1) / ((high - low) + 1);
+            rescaledCode = (((this.code - this.low) + 1) * valCount - 1) / ((this.high - this.low) + 1);
             rescaledCode = Math.round(rescaledCode);
             this.lookupEntryByCumCount(rescaledCode, probEntries, cCount, cCumCount);
 
@@ -128,7 +130,7 @@ class CDP2 { // Figure 150 (left side missing)
 
     lookupEntryByCumCount(iCount, probEntries, cCount, cCumCount) {
         var nEntries = probEntries.length / 3;
-        var seqSearchLen = 4, ii = 0, mid;
+        var seqSearchLen = 4, ii = 0;
 
 
         // For short lists, do sequential search
@@ -189,22 +191,47 @@ class CDP2 { // Figure 150 (left side missing)
         this.high = this.low + ((uRange * uHighCt) / uScale - 1);
         this.low = this.low + ((uRange * uLowCt) / uScale - 1);
         // If most signif digits match, the bits will be shifted out
-        for (; ;)
-            if (~(this.high ^ this.low) >>> 15) { }
+        for (; ;) {
+            var x = this.high - this.low;
+            var y = x >>> 15;
+            // If the most signif digits match, the bits will be shifted out.
+            if (y == 1)
+            { 
+            
+                if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
+                    this.code ^= 0x4000;
+                    this.low &= 0x3fff;
+                    this.high |= 0x4000;
+                }
 
-            else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
-                this.code ^ 0x4000;
-                this.low & 0x3fff;
-                this.high | 0x4000;
+                // Else, if underflow is threatening, shift out the 2nd most signif digit.
+                //else if ((_low & 0x4000) && !(_high & 0x4000))
+                // If high=10xx and low=01xx
+                else {
+                    return true;
+                }
             }
-            else {
-                return true;
-            }
+            //else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
+            //    this.code ^ 0x4000;
+            //    this.low & 0x3fff;
+            //    this.high | 0x4000;
+            //}
+            //else {
+            //    return true;
+            //}
 
-        this.low << 1;
-        this.high << 1;
-        this.high | 1;
-        this.code << 1;
+           
+            this.low <<= 1;
+            this.low &= 65535;
+
+            this.high <<= 1;
+            this.high &= 65535; 
+            this.high |= 1;
+           
+            this.code <<= 1;
+            this.code &= 65535;
+            this.code;
+        }
     }
 
     read() {
@@ -253,6 +280,11 @@ class CDP2 { // Figure 150 (left side missing)
 
         } else {
             //Anything else but none/bitLength or Arithmitic: not yet implemented
+        }
+
+        showCoordinates = coordinateArrays.push(this.originalValue);
+        if (showCoordinates > 9) {
+            realCoordinates.push(this.originalValue);
         }
         
     }
