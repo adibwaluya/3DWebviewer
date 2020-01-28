@@ -2,10 +2,8 @@
     constructor() {
         this.jtFile = null;     // VORHER: new FileReader();
         this.position = 0;
-        /*this.jtFile.readAsArrayBuffer(filename); */     /*Revised 02.01.2020*/
         this.isdone = true;
         this.bitsLeft = 0;
-        /*this.jtFile.addEventListener('loadend', this.initArray.bind(this));*/   /*Revised 02.01.2020*/
     }
 
     // WARNING: HUGE REVISION (02.01.2020)
@@ -32,9 +30,7 @@
 
 
     }
-    // END REVISION
-
-    
+   
     initArray() {
         this.data8Array = new Uint8Array(this.jtFile.result);
         this.isdone = true;
@@ -120,26 +116,4 @@ class JTBitReader {
         return buildBits;
     }
 
-    //getSignedBits(numBits) {
-    //    var buildBits = 0;
-    //    this.getBits(numBits);
-    //    if (this.bitsLeft < numBits) {
-    //        if (this.bitsLeft != 0) {
-                
-    //        }
-    //    }
-
-    //    if (this.bitsLeft < numBits) {
-    //        if (this.bitsLeft != 0) {
-    //            numBits = numBits - this.bitsLeft;
-    //            buildBits = this.data << (numBits);
-    //        }
-    //        this.data = this.jtDataReader.getData32(this.endian);
-    //        this.bitsLeft = 32;
-    //    }
-    //    this.bitsLeft = this.bitsLeft - numBits;
-    //    buildBits = 
-
-    //    return buildBits;
-    //}
 }

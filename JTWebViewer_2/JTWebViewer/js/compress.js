@@ -9,8 +9,6 @@ class CDP2 { // Figure 150 (left side missing)
         this.CODECType = 0;
         this.codeTextLength = 0;
         this.originalValues = 0;
-        //this.iMaxSymbol = 0;
-        //this.iMinSymbol = 0;
         this.iSymbol = 0;
         this.predictorType = 0;    // implemetation fehlt noch
         this.originalData = 0;
@@ -38,7 +36,6 @@ class CDP2 { // Figure 150 (left side missing)
         this.pcCodeTextLen = 0;
         // Vertex Coordinate Array
         this.numberOfComponents;
-
 
     }
 
@@ -72,10 +69,6 @@ class CDP2 { // Figure 150 (left side missing)
                 this.ovValues = [];
 
             }
-            //else if (encodedData.length > 1) {
-            //    localEncodes.push(encodedData.length);
-            //// not implemented yet
-            //}
             localEncodes = [];
             ++i;
         }
@@ -105,11 +98,6 @@ class CDP2 { // Figure 150 (left side missing)
         uBitBuff <<= 16;
         nBitBuff -= 16;
 
-        //for (i = 0; i < cCumCount.length; i++) {
-        //    currTotalCount += cCumCount[i];
-
-        //}
-
         for (i = 0; i < valCount; ++i) {
 
             rescaledCode = (((this.code - this.low) + 1) * valCount - 1) / ((this.high - this.low) + 1);
@@ -127,15 +115,13 @@ class CDP2 { // Figure 150 (left side missing)
             this.removeSymbolFromStream(this.currcCount, (this.currcCumCount + this.currcCount), currTotalCount);
            
         }
-        //this.flushDecoder();
-        this.ovValues = [];
+        
         return true;
     }
 
     lookupEntryByCumCount(iCount, probEntries, cCount, cCumCount) {
         var nEntries = probEntries.length / 3;
         var seqSearchLen = 4, ii = 0;
-
 
         // For short lists, do sequential search
         if (nEntries <= (seqSearchLen * 2)) {
@@ -150,6 +136,7 @@ class CDP2 { // Figure 150 (left side missing)
             this.currcCount = cCount[ii];
             this.currcCumCount = cCumCount[ii];
         }
+
         // For long lists, do a short sequential searches through most likely
         // elements, then do a binary search through the rest.
         else {
@@ -215,15 +202,6 @@ class CDP2 { // Figure 150 (left side missing)
                     return true;
                 }
             }
-            //else if (((this.low >>> 14) == 1) && ((this.high >>> 14) == 2)) {
-            //    this.code ^ 0x4000;
-            //    this.low & 0x3fff;
-            //    this.high | 0x4000;
-            //}
-            //else {
-            //    return true;
-            //}
-
            
             this.low <<= 1;
             this.low &= 65535;
@@ -237,24 +215,7 @@ class CDP2 { // Figure 150 (left side missing)
             this.code;
         }
 
-
-
-
     }
-
-
-
-    //getNextCodeText(uCodeText, nBits) {
-
-    //}
-
-
-
-
-
-
-    
-    
 
     read() {
         var i, vals2read = 0, partialData1 = [], partialData2 = [], partialData3 = [], totalData1 = [], totalData2 = [];
@@ -270,28 +231,8 @@ class CDP2 { // Figure 150 (left side missing)
             this.CODECType = this.jtDataReader.getData8();
             if (this.CODECType < 4) {
                 this.codeTextLength = this.jtDataReader.getData32(0)/*.toString(16)*/;
-                //this.originalValues = this.jtDataReader.getData32(0).toString(16);
                 vals2read = Math.ceil(this.codeTextLength / 32.);
-                //if (this.codeTextLength <= 20) {
-                //    for (i = 0; i < vals2read; ++i) {
-                //        this.encodedData.push(this.jtDataReader.getData32(0));
-                //    }
-                //}
-                //else if (20 < this.codeTextLength && this.codeTextLength <= 40) {
-                //    for (i = 0; i < vals2read; ++i) {
-                //        this.encodedData.push(this.jtDataReader.getData64(0));
-                //    }
-                //}
-                //else if (40 < this.codeTextLength && this.codeTextLength <= 80) {
-                //    for (i = 0; i < vals2read; ++i) {
-                //        this.encodedData.push(this.jtDataReader.getData32(0));
-
-                //        //partialData3.join(partialData2);
-
-
-                //        //this.encodedData.push(this.jtDataReader.getData32(0));
-                //    }
-                //}
+              
                 for (i = 0; i < vals2read; ++i) {
                     this.encodedData.push(this.jtDataReader.getData32(0));
                 }
@@ -323,11 +264,8 @@ class CDP2 { // Figure 150 (left side missing)
                     if (this.OOBValues != 0) {
                         
                         this.jtDataReader.changePositionSub(4);
-                        //this.CODECType = this.jtDataReader.getData8();
-                        
                     }
-                    
-
+             
 
                 } else if (this.CODECType == 1) { // BitLength
                     this.decodedData = this.decodeBitlength(this.valueCount, this.codeTextLength, this.encodedData);
@@ -341,12 +279,9 @@ class CDP2 { // Figure 150 (left side missing)
             } else {
                 //Anything else but none/bitLength or Arithmitic: not yet implemented
             }
-            //this.originalValue = this.ovValues
-
             
-        
-        
     }
+
     print() {
         var i;
         bodyAppend("p", "TopologicalCompressedRepData: faceDegrees: ");
@@ -354,13 +289,7 @@ class CDP2 { // Figure 150 (left side missing)
             this.originalData = this.values[i].toString(16);
         }
         bodyAppend("p", "CDP Package: valueCount: " + this.valueCount + "; CODECType: " + this.CODECType + "; codeTextLength: " + this.codeTextLength + "; Original values: " + this.originalData);
-        //for (i = 0; i < this.arrayExample.length; ++i) {
-        //    //this.originalValue = this.arrayExample[i];
-        //}
         bodyAppend("p", "outVals: " + this.originalValue);
-        //bodyAppend("p", "decoded: " + this.decodedData);
-        //bodyAppend("p", "Max Symbol: " + this.iMaxSymbol);
-        
     }
 };
 

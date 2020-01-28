@@ -78,14 +78,12 @@
     <Content Include="images\StoreLogo.png" />
     <Content Include="images\Wide310x150Logo.scale-200.png" />
     <Content Include="js\compress.js" />
-    <Content Include="js\coordinates.js" />
     <Content Include="js\jtSegments.js" />
     <Content Include="js\input.js" />
     <Content Include="js\jtHeader.js" />
     <Content Include="js\jtTOC.js" />
     <Content Include="js\main.js" />
     <Content Include="css\default.css" />
-    <Content Include="js\probContext2.js" />
     <Content Include="three\OrbitControls.js" />
     <Content Include="three\three.js" />
     <Content Include="three\three.module.js" />
